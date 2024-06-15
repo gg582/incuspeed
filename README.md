@@ -1,5 +1,5 @@
 # Miney
-Lightweight LXD container management front-end app for linux
+Super-Lightweight LXD container management front-end app for linux
 Default distro is ubuntu:23:04.
 
 ## Getting Started
@@ -26,3 +26,4 @@ be sure to change it.
 * Virtual Machines are managed by LXD.
 * All connections can be managed in a single domain
 * Used Nginx Reverse-Proxy, it still needs more tasks to get stable software. So this is yet experimental.
+  
