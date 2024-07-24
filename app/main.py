@@ -105,7 +105,7 @@ class LVirCli_Client(GridLayout):
             return
         try:
             self.spinlock = True
-            self.delerteStopStartTask('delete')
+            self.deleteStopStartTask('delete')
             wid = self.btnarr[self.sel]
             wid.parent.remove_widget(wid)
             self.tag.remove(self.tag[self.sel])
