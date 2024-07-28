@@ -224,7 +224,7 @@ func StartByTag(wr http.ResponseWriter, req *http.Request) {
     forTag, _ := ioutil.ReadAll(req.Body)
     log.Println("Received TAG:"+string(forTag))
     stringForStartTask := string(forTag)
-    cmdStart := exec.Command("/bin/bash","-c", "start.sh",stringForStartTask)
+    cmdStart := exec.Command("/bin/bash", "start.sh "+stringForStartTask)
     cmdStart.Start()
     cmdStart.Wait()
     return
