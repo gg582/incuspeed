@@ -215,7 +215,7 @@ func DeleteFromListByValue(slice []int64, value int64) []int64 {
 func StopByTag (wr http.ResponseWriter, req *http.Request) {
     forTag, _ := ioutil.ReadAll(req.Body)
     stringForStopTask := string(forTag)
-    cmdStop := exec.Command("/bin/bash","-c", "stop.sh "+stringForStopTask)
+    cmdStop := exec.Command("/bin/bash", "stop.sh "+stringForStopTask)
     cmdStop.Start()
     cmdStop.Wait()
     return
@@ -233,7 +233,7 @@ func DeleteByTag ( wr http.ResponseWriter , req *http.Request) {
 
   forTag, _ := ioutil.ReadAll(req.Body)
   stringForTag := string(forTag)
-  cmdDelete := exec.Command("/bin/bash","-c", "delete_container.sh "+stringForTag)
+  cmdDelete := exec.Command("/bin/bash", "delete_container.sh "+stringForTag)
   cur, _ := ipCol.Find(context.Background(), bson.D{{}})
 	for cur.Next(context.TODO()) {
     resp , _ := bson.MarshalExtJSON ( cur.Current , false , false )
