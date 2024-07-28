@@ -60,7 +60,7 @@ class LVirCli_Client(GridLayout):
     def syncOnclick(self,instance):
         password = self.password.text
         username = self.username.text
-        response = json.loads(requests.post('http://daegu.yjlee-dev.pe.kr:32000/request',json={"username":username,"password":password}, timeout = 1).text)
+        response = json.loads(requests.post('http://dev.yoonjin2.kr:32000/request',json={"username":username,"password":password}, timeout = 1).text)
 
         if len(self.btnarr) != 0:
             for i in self.btnarr:

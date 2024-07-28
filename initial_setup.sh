@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="23.04"
+VERSION="24.04"
 OPTION=$1
 if [ -z $OPTION ] 
 then
@@ -20,9 +20,12 @@ cd ..
 zip linuxVirtualization.zip linuxVirtualization -r
 cd linuxVirtualization
 apt-get update -y
+sudo apt-get install -y gnupg curl
 release="jammy"
-curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc|sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/mongodb-6.gpg
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $release/mongodb-org/6.0 multiverse" > /etc/apt/sources.list.d/mongodb-org-6.0.list
+curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
+   sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+   --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
 sudo apt-get update
 sudo apt-get  -y install mongodb-org nginx
 echo "export PATH=$PATH+":/var/lib/snapd/snap/bin"" >> /root/.bashrc
