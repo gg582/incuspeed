@@ -239,7 +239,7 @@ func DeleteByTag ( wr http.ResponseWriter , req *http.Request) {
     resp , _ := bson.MarshalExtJSON ( cur.Current , false , false )
     var INFO ContainerInfo
     json.Unmarshal(resp,&INFO)
-    if(INFO.TAG!=stringForTag) {
+    if(INFO.TAG==stringForTag) {
         p32, _ := strconv.Atoi(INFO.Serverport)
         p      := int(p32)
         PORT_LIST = DeleteFromListByValue(PORT_LIST,int64(p))
