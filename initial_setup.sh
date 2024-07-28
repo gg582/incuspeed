@@ -20,7 +20,8 @@ cd ..
 zip linuxVirtualization.zip linuxVirtualization -r
 cd linuxVirtualization
 apt-get update -y
-sudo apt-get install -y gnupg curl
+sudo apt remove ufw -y
+sudo apt-get install -y gnupg curl firewalld
 release="jammy"
 curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
    sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \

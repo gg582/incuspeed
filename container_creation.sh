@@ -2,7 +2,7 @@
 NET_INTERFACE="$(ip route get 1 | awk '{print $5}')"
 TAG="$1"
 PORT="$2"
-VERSION="22.04"
+VERSION="24.04"
 SERVER_IP="$(ip route get 1 | awk '{print $7}')"
 echo -n "TAG:"
 echo $TAG

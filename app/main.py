@@ -96,7 +96,7 @@ class LVirCli_Client(GridLayout):
     def register(self,instance):
             username = self.username.text
             password = self.password.text
-            r = requests.get ('http://daegu.yjlee-dev.pe.kr:32000/register', auth = (username,password))
+            r = requests.get ('http://dev.yoonjin2.kr:32000/register', auth = (username,password))
         
     def onDeletePress(self,instance):
         if self.spinlock:
@@ -124,7 +124,7 @@ class LVirCli_Client(GridLayout):
     def onStop(self,instance):
         self.deleteStopStartTask('stop')
     def deleteStopStartTask(self,st):
-        r = requests.post('http://daegu.yjlee-dev.pe.kr:32000/'+st, data=self.seltagArr[self.sel])
+        r = requests.post('http://dev.yoonjin2.kr:32000/'+st, data=self.seltagArr[self.sel])
 class LVirCli_App(App):
     def build(self):
         return LVirCli_Client()
