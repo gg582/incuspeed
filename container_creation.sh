@@ -4,6 +4,8 @@ TAG="$1"
 PORT="$2"
 VERSION="24.04"
 SERVER_IP="$(ip route get 1 | awk '{print $7}')"
+source /etc/environment
+soource /root/.bashrc
 echo -n "TAG:"
 echo $TAG
 if [ $(arch)="x86_64" ]

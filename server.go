@@ -36,13 +36,13 @@ var buf bytes.Buffer
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
 var col *mongo.Collection
 var ipCol , UserCol *mongo.Collection
-var portInt int = 25563
-var portIntonePlace int = 25563
+var portInt int = 27020
+var portIntonePlace int = 27020
 var ctx context.Context
 var tag string
-var ADMIN    string = "gimme"
-var password string = "$"
-var ADDR string = "http://daegu.yjlee-dev.pe.kr"
+var ADMIN    string = "user"
+var password string = "user"
+var ADDR string = "http://dev.yoonjin2.kr"
 
 type UserInfo struct {
     Username  string `json:"username"`
@@ -246,17 +246,12 @@ func DeleteByTag ( wr http.ResponseWriter , req *http.Request) {
         ipCol.DeleteOne(context.Background(),cur.Current)
         portIntonePlace = p
         ePlace += 1
-        cmdDelete = exec.Command("/bin/bash","-c", "add_port.sh",INFO.Serverport,INFO.Serverip)
         cmdDelete.Stdout = os.Stdout 
         cmdDelete.Stderr = os.Stderr
         cmdDelete.Start()
         cmdDelete.Wait()
     }
-	}
-  cmdDelete.Stdout = os.Stdout 
-  cmdDelete.Stderr = os.Stderr
-  cmdDelete.Start()
-  cmdDelete.Wait()
+  }
 }
 func GetConfig ( wr http.ResponseWriter , req *http.Request) {
 	INFO.Serverip = SERVER_IP

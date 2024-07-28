@@ -1,6 +1,7 @@
 #!/bin/bash
 TAG="$1"
 source /root/.bashrc
+source /etc/environment
 lxc stop $TAG
 lxc delete $TAG
 echo -n > /usr/local/bin/linuxVirtualization/container/latest_access
