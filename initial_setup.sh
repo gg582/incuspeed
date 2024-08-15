@@ -94,6 +94,7 @@ do
 		semanage port -a -t http_port_t -p tcp $i
 done
 firewall-cmd --permanent --zone=public --add-port 25565-60000/udp
+firewall-cmd --permanent --zone=public --add-port 25565-60000/tcp
 firewall-cmd --permanent --zone=public --add-port 8843/udp
 firewall-cmd --permanent --zone=public --add-port 8843/tcp
 firewall-cmd --permanent --zone=public --add-port 25565-60000/tcp

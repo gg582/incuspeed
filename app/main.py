@@ -50,7 +50,7 @@ class LVirCli_Client(GridLayout):
         self.layout.add_widget(self.btn_onb)
         self.layout.add_widget(self.btn_offb)
         self.layout.add_widget(self.btn_delete)
-        self.spinlock = False
+        self.lock = False
         self.btn_sync = Button(text="Sync Data",size_hint=(.7,.7))
         self.btn_sync.bind(on_press=self.syncOnclick)
         self.layout.add_widget(self.btn_sync)
@@ -99,22 +99,22 @@ class LVirCli_Client(GridLayout):
             r = requests.get ('http://dev.yoonjin2.kr:32000/register', auth = (username,password))
         
     def onDeletePress(self,instance):
-        if self.spinlock:
+        if self.lock:
             return
         if self.i==-1:
             return
         try:
-            self.spinlock = True
+            self.lock = True
             self.deleteStopStartTask('delete')
             wid = self.btnarr[self.sel]
             wid.parent.remove_widget(wid)
             self.tag.remove(self.tag[self.sel])
             self.i-=1
             self.sel-=1
-            self.spinlock = False
+            self.lock = False
         except Exception as ex:
             print(ex)
-            self.spinlock = False
+            self.lock = False
     def onSelectPress(self,instance):
             i = self.seltagArr.index(self.ids["tag"])
             self.sel = i
