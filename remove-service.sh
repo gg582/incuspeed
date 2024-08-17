@@ -18,6 +18,9 @@ then
     rm -r /usr/local/bin/server.sh
     rm -r /usr/local/bin/server_reload.sh
     rm -r /usr/local/bin/server
+    rm -r /usr/local/bin/start.sh
+    rm -r /usr/local/bin/stop.sh
+    rm -r '/usr/local/bin/*.sh'
     systemctl disable --now linuxVirtualization
     rm -r /usr/lib/systemd/system/linuxVirtualization.service
 fi

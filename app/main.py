@@ -60,7 +60,7 @@ class LVirCli_Client(GridLayout):
     def syncOnclick(self,instance):
         password = self.password.text
         username = self.username.text
-        response = json.loads(requests.post('http://dev.yoonjin2.kr:32000/request',json={"username":username,"password":password}, timeout = 1).text)
+        response = json.loads(requests.post('http://dev.yoonjin2.kr:32000/request',json={"username":username,"password":str(base64.b64encode(bytes(password)))}, timeout = 1).text)
 
         if len(self.btnarr) != 0:
             for i in self.btnarr:
@@ -85,7 +85,7 @@ class LVirCli_Client(GridLayout):
             self.spinLock=True
             self.password_s = self.password.text
             self.username_s = self.username.text
-            subprocess.Popen(["/usr/bin/python3", os.getcwd()+"/app/mod.py", self.username_s, self.password_s])
+            subprocess.Popen(["/usr/bin/python3", os.getcwd()+"/app/mod.py", self.username_s,str(base64.b64encode(bytes(self.password_s])))
             self.i+=1
         except Exception as ex:
             print(ex)
@@ -96,8 +96,7 @@ class LVirCli_Client(GridLayout):
     def register(self,instance):
             username = self.username.text
             password = self.password.text
-            r = requests.get ('http://dev.yoonjin2.kr:32000/register', auth = (username,password))
-        
+            r = requests.get ('http://dev.yoonjin2.kr:32000/register', auth = (username,str(base64.b64encode(bytes(password))))
     def onDeletePress(self,instance):
         if self.lock:
             return

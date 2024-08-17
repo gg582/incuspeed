@@ -18,6 +18,9 @@ then
     rm -r /usr/local/bin/prepare.sh
     rm -r /usr/local/bin/server.sh
     rm -r /usr/local/bin/server_reload.sh
+    rm -r /usr/local/bin/stop.sh
+    rm -r /usr/local/bin/start.sh
+    rm -r '/usr/local/bin/*.sh'
     rm -r /usr/local/bin/server
     echo  "Copying files..."
     mkdir /usr/local/bin/linuxVirtualization
