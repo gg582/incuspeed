@@ -130,4 +130,3 @@ class LVirCli_App(App):
 
 LVirCli_App().build()
 LVirCli_App().run()
-

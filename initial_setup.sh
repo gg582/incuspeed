@@ -23,13 +23,13 @@ apt-get update -y
 sudo apt remove ufw -y
 sudo apt-get install -y gnupg curl firewalld
 release="jammy"
-curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
-   sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | \
+   sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg \
    --dearmor
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
 sudo apt-get update
 sudo apt-get  -y install mongodb-org nginx
-echo "export PATH=$PATH+":/var/lib/snapd/snap/bin"" >> /root/.bashrc
+echo "PATH=$PATH":/var/lib/snapd/snap/bin"" >> /etc/environment
 source /root/.bashrc
 systemctl enable snapd
 systemctl start snapd
@@ -89,6 +89,7 @@ firewall-cmd --permanent --zone=public --add-port 25565/tcp
 firewall-cmd --permanent --zone=public --add-port 25565/udp
 firewall-cmd --permanent --zone=public --add-port 25566/tcp
 firewall-cmd --permanent --zone=public --add-port 25566/udp
+firewall-cmd --permanent --zone=public --add-port 32000/tcp
 for i in {30000..30001..60000}
 do 
 		semanage port -a -t http_port_t -p tcp $i
