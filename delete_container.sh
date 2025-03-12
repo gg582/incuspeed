@@ -2,8 +2,8 @@
 TAG="$1"
 source /root/.bashrc
 source /etc/environment
-lxc stop $TAG
-lxc delete $TAG
+incus stop $TAG
+incus delete $TAG
 echo -n > /usr/local/bin/linuxVirtualization/container/latest_access
 sudo rm -rf nohup*.out
 

@@ -2,6 +2,8 @@
 NET_INTERFACE="$(ip route get 1 | awk '{print $5}')"
 TAG="$1"
 PORT="$2"
+USERNAME="$3"
+PASSWORD="$4"
 VERSION="24.04"
 SERVER_IP="$(ip route get 1 | awk '{print $7}')"
 source /etc/environment
@@ -20,11 +22,11 @@ else
 		echo "Your architecture is $(arch)" 1>&2
 		return
 fi
-lxc launch ubuntu/$VERSION/$ARCH $TAG 
+incus launch ubuntu/$VERSION/$ARCH $TAG 
 
 
 while true ; do 
-	CONTAINER_IP=`lxc list |  grep $TAG | awk '{print $6}' | grep --invert-match "|" | tr -s " " `
+	CONTAINER_IP=`incus list |  grep $TAG | awk '{print $6}' | grep --invert-match "|" | tr -s " " `
 	LENGTH_IP=`echo $CONTAINER_IP | awk '{print length}'`
 	if [  $LENGTH_IP = 0 ]; then
 		sleep 0.5
@@ -52,18 +54,18 @@ echo "
 nginx -s reload
 echo -n "CURRENT IP:"
 echo $CONTAINER_IP
-lxc file push -r /usr/local/bin/linuxVirtualization/linuxVirtualization.zip $TAG/
-lxc exec $TAG -- /bin/apt-get install -y unzip
-lxc exec $TAG -- /bin/unzip /linuxVirtualization.zip 
-lxc exec $TAG -- /usr/bin/mv    linuxVirtualization /linuxVirtualization
+incus file push -r /usr/local/bin/linuxVirtualization/linuxVirtualization.zip $TAG/
+incus exec $TAG -- /bin/apt-get install -y unzip openssh-server openssh-client sudo
+incus exec $TAG -- useradd -m -s /bin/bash $USERNAME
+incus exec $TAG -- sudo usermod -aG sudo "$USERNAME"
+incus exec $TAG -- /bin/bash -c 'echo "$PASSWORD\n$PASSWORD" | passwd $USERNAME'
+incus exec $TAG -- echo "$USERNAME ALL=(ALL:ALL) ALL" >> /etc/sudoers
+incus exec $TAG -- /bin/unzip /linuxVirtualization.zip 
+incus exec $TAG -- /usr/bin/mv    linuxVirtualization /linuxVirtualization
 echo $TAG > /usr/local/bin/linuxVirtualization/container/latest_access
-lxc exec $TAG -- /bin/apt-get install -y openssh-server 
-lxc exec $TAG -- /bin/apt-get install -y ubuntu-gnome-desktop
-lxc exec $TAG -- /bin/apt-get install -y xrdp
-lxc exec $TAG -- /bin/rm -rf /etc/ssh/sshd_config
-lxc exec $TAG -- /bin/systemctl restart --now ssh
-lxc exec $TAG -- /bin/systemctl restart --now xrdp
-lxc exec $TAG -- /bin/bash /linuxVirtualization/conSSH.sh $TAG
-lxc stop $TAG
+incus exec $TAG -- /bin/apt-get install -y openssh-server 
+incus exec $TAG -- /bin/rm -rf /etc/ssh/sshd_config
+incus exec $TAG -- /bin/systemctl restart --now ssh
+incus exec $TAG -- /bin/bash /linuxVirtualization/conSSH.sh $TAG
 echo "LXC DEVICE STATUS:"
-lxc list
+incus list

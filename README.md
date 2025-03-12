@@ -1,29 +1,40 @@
-# Miney
-Super-Lightweight LXD container management front-end app for linux
-Default distro is ubuntu:23:04.
+# Linux Virtualization Example  
+:inux: Super-Lightweight LXD container management front-end app for Linux  
+Default distro: :ubuntu: Ubuntu 24.04  
 
-## Getting Started
-####  Installation on Server
-  ssh management port is given port.
-  xrdp management port is given port + 1.
-* make
-* ./initial_setup.sh --reconfigure-lxd
-* systemctl start --now linuxVirtualization
-### GUI Application
-#### Usage
-cd app
-python3 main.py
-You can connect into my computer's allocation service.
-default login( id: root, password: PASSWORD)
-be sure to change it.
-#### Requirements 
-* python3,requests,kivy
+## Getting Started  
+:rocket: **Installation on Server**  
+1. Clone the repository.  
+2. Run the following commands:  
+   ```bash
+   make
+   ./initial_setup.sh --reconfigure-lxd
+   systemctl start --now linuxVirtualization
+   ```  
+3. The default SSH management port and Xrdp management port are assigned.  
 
-### Back-end Application
-* Written in Go, binary is generated when you run Make Task
-* Working as RESTful Server.
-#### About Virtual Machines Management
-* Virtual Machines are managed by LXD.
-* All connections can be managed in a single domain
-* Used Nginx Reverse-Proxy, it still needs more tasks to get stable software. So this is yet experimental.
-  
+## :computer: **GUI Application Usage**  
+1. Navigate to the application directory:  
+   ```bash
+   cd app
+   ```  
+2. Run the application:  
+   ```bash
+   python3 main.py
+   ```  
+3. Default login credentials:  
+   - Username: `root`  
+   - Password: **Randomly generated based on VM tag** *(Note: Update immediately after first login!)*  
+
+## :gear: **Back-End Application**  
+The back-end is written in Go. Run the following command to generate the binary:  
+```bash
+make Task
+```  
+
+### About Virtual Machines Management  
+- Uses LXD for virtual machine management.  
+- All connections are managed within a single domain.  
+- Note: The Nginx Reverse-Proxy setup is still experimental and needs further stabilization.  
+
+

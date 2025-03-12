@@ -1,7 +1,7 @@
 #!/bin/bash
 source /root/.bashrc
-lxc stop $(lxc list | awk '{print $2}' | grep --invert-match NAME)
-lxc delete $(lxc list | awk '{print $2}' | grep --invert-match NAME)
+incus stop $(incus list | awk '{print $2}' | grep --invert-match NAME)
+incus delete $(incus list | awk '{print $2}' | grep --invert-match NAME)
 rm -rf container/linuxVirtualization-*
 rm -rf properties/linuxVirtualization-*
 cat drop_all.props | mongosh --port 27017

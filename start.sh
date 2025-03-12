@@ -1,2 +1,3 @@
 #!/bin/bash
-lxc start $1
+echo "TAG is $1"
+/snap/bin/incus start $1

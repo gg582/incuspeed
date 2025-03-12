@@ -1,2 +1,2 @@
 #!/bin/bash
-lxc stop $1
+/snap/bin/incus stop $1

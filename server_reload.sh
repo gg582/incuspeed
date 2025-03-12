@@ -1,2 +1,3 @@
-systemctl stop --now linuxVirtualization.service
-systemctl start --now linuxVirtualization.service
+#!/bin/bash
+/usr/local/bin/linuxVirtualization/kill_for_reload.sh
+/usr/local/bin/linuxVirtualization/server.sh

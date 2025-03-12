@@ -2,17 +2,18 @@ package main
 
 import (
     "crypto/aes"
+    "fmt"
+    client "github.com/lxc/incus/client"
+    "github.com/lxc/incus/shared/api"
     "crypto/cipher"
     "crypto/sha256"
     "net/http"
-    "golang.org/x/crypto/bcrypt"
     "context"
     crand "crypto/rand"
     rand "math/rand"
     "bytes"
     "encoding/base64"
     "encoding/json"
-    "fmt"
     "io/ioutil"
     "log"
     "math"
@@ -30,6 +31,8 @@ import (
 )
 
 var ePlace int64
+var lxdClient client.InstanceServer 
+var mydir string = "/usr/local/bin/linuxVirtualization/"
 var SERVER_IP = os.Args[1] 
 var PORT_LIST = make([]int64,0,100000)
 var flag   bool
@@ -52,24 +55,29 @@ var cancel context.CancelFunc
 var tag string
 var ADMIN    string = "yjlee"
 var password string = "asdfasdf"
-var ADDR string = "http://dev.yoonjin2.kr"
+var ADDR string = "http://hobbies.yoonjin2.kr"
 
 // 포트 관리를 위한 뮤텍스 추가
 var portMutex sync.Mutex
 
 type UserInfo struct {
-    Username  string `json:"username"`
-    Password  string `json:"password"`
+    Username     string `json:"username"`
+    UsernameIV   string `json:"username_iv"`
+    Password     string `json:"password"`
+    PasswordIV   string `json:"password_iv"`
+    Key          string `json:"key"`
 }
 
 type ContainerInfo struct {
     Username string `json:"username"`
+    UsernameIV string `json:"username_iv"`
     Password string `json:"password"`
-    IV       string `json:"iv"`
+    PasswordIV       string `json:"password_iv"`
     Key      string `json:"key"`
     TAG      string `json:"tag"`
     Serverip string `json:"serverip"`
     Serverport string `json:"serverport"`
+    VMStatus     string `json:"vmstatus"`
 }
 
 var INFO ContainerInfo
@@ -79,34 +87,66 @@ func TouchFile(name string) {
     file.Close()
 }
 
-func decrypt_password(ct string, key []byte, iv []byte) (string, error) {
-    ct_bytes, _ := base64.StdEncoding.DecodeString(ct)
-    block, err := aes.NewCipher(key)
+func decrypt_password(ct string, key string, iv string) (string, error) {
+    // Key 디코딩 및 검증
+    key_bytes, err := base64.StdEncoding.DecodeString(key)
     if err != nil {
-        return "", err
+        return "", fmt.Errorf("invalid key: %v", err)
     }
-    mode := cipher.NewCBCDecrypter(block, iv)
+    if len(key_bytes) != 16 && len(key_bytes) != 24 && len(key_bytes) != 32 {
+        return "", fmt.Errorf("invalid key length: %d (must be 16, 24, or 32 bytes)", len(key_bytes))
+    }
+
+    // IV 디코딩 및 검증
+    iv_bytes, err := base64.StdEncoding.DecodeString(iv)
+    if err != nil {
+        return "", fmt.Errorf("invalid iv: %v", err)
+    }
+    if len(iv_bytes) != aes.BlockSize {
+        return "", fmt.Errorf("invalid iv length: %d (must be %d bytes)", len(iv_bytes), aes.BlockSize)
+    }
+
+    // 암호문 디코딩 및 검증
+    ct_bytes, err := base64.StdEncoding.DecodeString(ct)
+    if err != nil {
+        return "", fmt.Errorf("invalid ciphertext: %v", err)
+    }
+    if len(ct_bytes)%aes.BlockSize != 0 {
+        return "", fmt.Errorf("ciphertext length %d is not a multiple of block size %d", len(ct_bytes), aes.BlockSize)
+    }
+
+    // AES 복호화
+    block, err := aes.NewCipher(key_bytes)
+    if err != nil {
+        return "", fmt.Errorf("failed to create cipher: %v", err)
+    }
+    mode := cipher.NewCBCDecrypter(block, iv_bytes)
     pt_bytes := make([]byte, len(ct_bytes))
     mode.CryptBlocks(pt_bytes, ct_bytes)
+
+    // 패딩 제거
+    if len(pt_bytes) == 0 {
+        return "", fmt.Errorf("decrypted plaintext is empty")
+    }
     padding := int(pt_bytes[len(pt_bytes)-1])
+    if padding < 1 || padding > aes.BlockSize {
+        return "", fmt.Errorf("invalid padding value: %d", padding)
+    }
+    for i := len(pt_bytes) - padding; i < len(pt_bytes); i++ {
+        if pt_bytes[i] != byte(padding) {
+            return "", fmt.Errorf("invalid padding bytes")
+        }
+    }
     pt_bytes = pt_bytes[:len(pt_bytes)-padding]
+
     return string(pt_bytes), nil
 }
-
 func sha256_hash(password string) string {
     hasher := sha256.New()
     hasher.Write([]byte(password))
     hashedBytes := hasher.Sum(nil)
     hashedString := base64.StdEncoding.EncodeToString(hashedBytes)
     return hashedString
-}
-
-func hashPassword(password string) (string, error) {
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-    if err != nil {
-        return "", err
-    }
-    return string(hashedPassword), nil
 }
 
 func RandStringBytes(n int) string {
@@ -193,9 +233,27 @@ func (q *ContainerQueue) worker() {
     }
 }
 
+func getContainerInfo(tag string, info ContainerInfo) ContainerInfo {
+     state, _, err := lxdClient.GetInstanceState(tag)
+     if err != nil {
+         log.Println("failed to get instance state")
+     }
+    // 결과 문자열 처리
+    info.VMStatus = state.Status
+
+    // 결과 출력
+    fmt.Println("STATE:", info.VMStatus)
+    return info
+}
+
+
 func createContainer(info ContainerInfo) {
-    mydir := "/usr/local/bin/linuxVirtualization"
-    tag := get_TAG(mydir, info.Username)
+    username, err := decrypt_password(info.Username, info.Key, info.UsernameIV)
+    password, err := decrypt_password(info.Password, info.Key, info.PasswordIV)
+    if err != nil {
+        return
+    }
+    tag := get_TAG(mydir, username)
     info.TAG = tag
 
     portMutex.Lock()
@@ -204,13 +262,13 @@ func createContainer(info ContainerInfo) {
     portMutex.Unlock()
 
     info.Serverport = port
-    log.Println("/container_creation.sh " + tag + " " + port)
+    log.Println("/container_creation.sh " + tag + " " + port + " " + username +  " " + password)
     portprev = port
 
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
     defer cancel()
 
-    cmdCreate := exec.CommandContext(ctx, "/bin/bash", "-c", "container_creation.sh "+tag+" "+port+" "+info.Username)
+    cmdCreate := exec.CommandContext(ctx, "/bin/bash", "-c", "container_creation.sh "+tag+" "+port+" "+username+" "+password)
     cmdCreate.Stdout = os.Stdout
     cmdCreate.Stderr = os.Stderr
     
@@ -219,7 +277,7 @@ func createContainer(info ContainerInfo) {
         return
     }
 
-    mcEXEC := exec.CommandContext(ctx, "/bin/bash", "-c", "init_server.sh "+tag)
+    mcEXEC := exec.CommandContext(ctx, "/bin/bash", "-c",  "init_server.sh " +tag)
     mcEXEC.Stdout = os.Stdout
     mcEXEC.Stderr = os.Stderr
     if err := mcEXEC.Run(); err != nil {
@@ -227,44 +285,25 @@ func createContainer(info ContainerInfo) {
         return
     }
 
+    info = getContainerInfo(tag, info)
+
     ipRes, insertErr := ipCol.InsertOne(ctx, info)
     if insertErr != nil {
         log.Println("Cannot insert container IP into MongoDB")
     } else {
         log.Println("container IP Insert succeed. Result is : ", ipRes)
     }
+
 }
 
 func CreateContainer(wr http.ResponseWriter, req *http.Request) {
-
     wr.Header().Set("Content-Type", "application/json; charset=utf-8")
 
     var info ContainerInfo
     if err := json.NewDecoder(req.Body).Decode(&info); err != nil {
-        http.Error(wr, err.Error(), http.StatusBadRequest)
+        http.Error(wr, "Failed to parse JSON: "+err.Error(), http.StatusBadRequest)
         return
     }
-
-    ivBytes, err := base64.StdEncoding.DecodeString(info.IV)
-    if err != nil {
-        http.Error(wr, "Invalid IV", http.StatusBadRequest)
-        return
-    }
-
-    keyBytes, err := base64.StdEncoding.DecodeString(info.Key)
-    if err != nil {
-        http.Error(wr, "Invalid key", http.StatusBadRequest)
-        return
-    }
-
-    hashedPassword, err := decrypt_password(info.Password, keyBytes, ivBytes)
-    if err != nil {
-        http.Error(wr, "Decryption failed", http.StatusBadRequest)
-        return
-    }
-
-    hashedPasswordAgain := sha256_hash(hashedPassword)
-    info.Password = hashedPasswordAgain
 
     select {
     case containerQueue.tasks <- info:
@@ -274,8 +313,7 @@ func CreateContainer(wr http.ResponseWriter, req *http.Request) {
         http.Error(wr, "Server is busy", http.StatusServiceUnavailable)
     }
 }
-
-func UseConfig(wr http.ResponseWriter, req *http.Request) {
+func UseContainer(wr http.ResponseWriter, req *http.Request) {
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
@@ -328,28 +366,31 @@ func DeleteFromListByValue(slice []int64, value int64) []int64 {
     return slice
 }
 
-func StopByTag(wr http.ResponseWriter, req *http.Request) {
-    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-    defer cancel()
+func ChangeState(tag string, state string) {
+    req := api.InstanceStatePut{
+        Action: state,
+    }
 
+    _, err := lxdClient.UpdateInstanceState(tag, req, "")
+    if err != nil {
+        log.Fatalf("Container state change failed: %v", err)
+    }
+}
+
+func StopByTag(wr http.ResponseWriter, req *http.Request) {
     forTag, err := ioutil.ReadAll(req.Body)
     if err != nil {
         http.Error(wr, err.Error(), http.StatusBadRequest)
         return
     }
 
-    stringForStopTask := string(forTag)
-    cmdStop := exec.CommandContext(ctx, "/bin/bash", "stop.sh "+stringForStopTask)
-    if err := cmdStop.Run(); err != nil {
-        log.Printf("Error stopping container: %v", err)
-        http.Error(wr, "Failed to stop container", http.StatusInternalServerError)
-        return
-    }
+    //stringForStopTask := string(forTag)
+    //cmdStop := exec.CommandContext(ctx, "/bin/bash", "-c", "stop.sh " +stringForStopTask)
+    //cmdStop.Run()
+    ChangeState(string(forTag), "stop")
 }
 
-func StartByTag(wr http.ResponseWriter, req *http.Request) {
-    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-    defer cancel()
+func RestartByTag(wr http.ResponseWriter, req *http.Request) {
 
     forTag, err := ioutil.ReadAll(req.Body)
     if err != nil {
@@ -358,13 +399,37 @@ func StartByTag(wr http.ResponseWriter, req *http.Request) {
     }
 
     log.Println("Received TAG:" + string(forTag))
-    stringForStartTask := string(forTag)
-    cmdStart := exec.CommandContext(ctx, "/bin/bash", "start.sh "+stringForStartTask)
-    if err := cmdStart.Run(); err != nil {
-        log.Printf("Error starting container: %v", err)
-        http.Error(wr, "Failed to start container", http.StatusInternalServerError)
+    ChangeState(string(forTag), "restart")
+
+}
+
+func PauseByTag(wr http.ResponseWriter, req *http.Request) {
+
+    forTag, err := ioutil.ReadAll(req.Body)
+    if err != nil {
+        http.Error(wr, err.Error(), http.StatusBadRequest)
         return
     }
+
+    log.Println("Received TAG:" + string(forTag))
+    ChangeState(string(forTag), "freeze")
+
+}
+
+func StartByTag(wr http.ResponseWriter, req *http.Request) {
+
+    forTag, err := ioutil.ReadAll(req.Body)
+    if err != nil {
+        http.Error(wr, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    log.Println("Received TAG:" + string(forTag))
+    ChangeState(string(forTag), "start")
+    //stringForStartTask := string(forTag)
+    //cmdStart := exec.CommandContext(ctx, "/bin/bash", "-c", "start.sh "+stringForStartTask)
+    //cmdStart.Run()
+
 }
 
 func DeleteByTag(wr http.ResponseWriter, req *http.Request) {
@@ -422,136 +487,110 @@ func DeleteByTag(wr http.ResponseWriter, req *http.Request) {
     }
 }
 
-func GetConfig(wr http.ResponseWriter, req *http.Request) {
+func GetContainers(wr http.ResponseWriter, req *http.Request) {
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
     INFO.Serverip = SERVER_IP
     wr.Header().Set("Content-Type", "application/json; charset=utf-8")
-   read, err := ioutil.ReadAll(req.Body)
+
+    var in UserInfo
+    body, err := ioutil.ReadAll(req.Body)
     if err != nil {
-        http.Error(wr, err.Error(), http.StatusBadRequest)
+        http.Error(wr, "Failed to read request body: "+err.Error(), http.StatusBadRequest)
         return
     }
 
-    if f, ok := wr.(http.Flusher); ok {
-        f.Flush()
+    if err := json.Unmarshal(body, &in); err != nil {
+        http.Error(wr, "Failed to parse JSON: "+err.Error(), http.StatusBadRequest)
+        return
     }
 
-    var in UserInfo
-    if err := json.Unmarshal(read, &in); err != nil {
-        http.Error(wr, err.Error(), http.StatusBadRequest)
+    decodedUsername, err := decrypt_password(in.Username, in.Key, in.UsernameIV)
+    if err != nil {
+        http.Error(wr, "Failed to decrypt username: "+err.Error(), http.StatusBadRequest)
+        return
+    }
+    decodedPassword, err := decrypt_password(in.Password, in.Key, in.PasswordIV)
+    if err != nil {
+        http.Error(wr, "Failed to decrypt password: "+err.Error(), http.StatusBadRequest)
         return
     }
 
     cur, err := ipCol.Find(ctx, bson.D{{}})
     if err != nil {
-        http.Error(wr, err.Error(), http.StatusInternalServerError)
+        log.Println("Error on finding information: ", err)
+        http.Error(wr, "Database error: "+err.Error(), http.StatusInternalServerError)
         return
     }
     defer cur.Close(ctx)
 
-    jsonList := make([]string, 0, 100000)
+    jsonList := make([]interface{}, 0, 100000)
     for cur.Next(ctx) {
-        resp, err := bson.MarshalExtJSON(cur.Current, false, false)
-        if err != nil {
-            log.Println(err)
+        var info ContainerInfo
+        if err := cur.Decode(&info); err != nil {
+            log.Println("Error decoding document: ", err)
             continue
         }
-        
-        var info UserInfo
-        if err := json.Unmarshal(resp, &info); err != nil {
-            log.Println(err)
-            continue
-        }
-        
-        if info.Username == in.Username && info.Password == in.Password {
-            jsonList = append(jsonList, string(resp))
+        Username, _ := decrypt_password(info.Username, info.Key, info.UsernameIV)
+        Password, _ := decrypt_password(info.Password, info.Key, info.PasswordIV)
+        if Username == decodedUsername && Password == decodedPassword {
+            jsonList = append(jsonList, info)
         }
     }
 
     resp, err := json.Marshal(jsonList)
     if err != nil {
-        http.Error(wr, err.Error(), http.StatusInternalServerError)
+        http.Error(wr, "Failed to marshal response: "+err.Error(), http.StatusInternalServerError)
         return
     }
 
-    fmt.Fprintf(wr, string(resp))
+    wr.WriteHeader(http.StatusOK)
+    wr.Write(resp)
 }
 
 func Register(wr http.ResponseWriter, req *http.Request) {
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
-    var data map[string]string
+    var u UserInfo
     body, err := ioutil.ReadAll(req.Body)
     if err != nil {
-        http.Error(wr, err.Error(), http.StatusBadRequest)
+        http.Error(wr, "Failed to read request body: "+err.Error(), http.StatusBadRequest)
         return
     }
 
-    if err := json.Unmarshal(body, &data); err != nil {
-        http.Error(wr, err.Error(), http.StatusBadRequest)
+    if err := json.Unmarshal(body, &u); err != nil {
+        http.Error(wr, "Failed to parse JSON: "+err.Error(), http.StatusBadRequest)
         return
     }
 
-    username := data["username"]
-    ct := data["password"]
-    iv := data["iv"]
-    key := data["key"]
-
-    ct_bytes, err := base64.StdEncoding.DecodeString(ct)
+    u.Password, err = decrypt_password(u.Password, u.Key, u.PasswordIV)
     if err != nil {
-        http.Error(wr, "Invalid password encoding", http.StatusBadRequest)
+        http.Error(wr, "Failed to decrypt password: "+err.Error(), http.StatusBadRequest)
         return
     }
-
-    iv_bytes, err := base64.StdEncoding.DecodeString(iv)
+    u.Username, err = decrypt_password(u.Username, u.Key, u.UsernameIV)
     if err != nil {
-        http.Error(wr, "Invalid IV encoding", http.StatusBadRequest)
+        http.Error(wr, "Failed to decrypt username: "+err.Error(), http.StatusBadRequest)
         return
     }
-
-    key_bytes, err := base64.StdEncoding.DecodeString(key)
-    if err != nil {
-        http.Error(wr, "Invalid key encoding", http.StatusBadRequest)
-        return
-    }
-
-    block, err := aes.NewCipher(key_bytes)
-    if err != nil {
-        http.Error(wr, "Cipher creation failed", http.StatusInternalServerError)
-        return
-    }
-
-    mode := cipher.NewCBCDecrypter(block, iv_bytes)
-    pt_bytes := make([]byte, len(ct_bytes))
-    mode.CryptBlocks(pt_bytes, ct_bytes)
-    padding := int(pt_bytes[len(pt_bytes)-1])
-    pt_bytes = pt_bytes[:len(pt_bytes)-padding]
-    decodedPassword := string(pt_bytes)
-
-    hashedPassword := sha256_hash(decodedPassword)
-    bcryptHash, err := hashPassword(hashedPassword)
-    if err != nil {
-        http.Error(wr, "Password hashing failed", http.StatusInternalServerError)
-        return
-    }
-
-    var u UserInfo
-    u.Username = username
-    u.Password = bcryptHash
 
     if _, err := UserCol.InsertOne(ctx, u); err != nil {
-        http.Error(wr, "Failed to register user", http.StatusInternalServerError)
+        http.Error(wr, "Failed to register user: "+err.Error(), http.StatusInternalServerError)
         return
     }
 
-    fmt.Fprintf(wr, "Registered User")
+    wr.Write([]byte("User Registration Done"))
 }
 
 func main() {
     // 기본 컨텍스트 설정
+    var err error
+    lxdClient, err = client.ConnectIncusUnix("",nil)
+    if err != nil {
+        log.Fatalf("Failed to connect to LXD")
+    }
     ctx, cancel = context.WithCancel(context.Background())
     defer cancel()
 
@@ -582,10 +621,13 @@ func main() {
     route = mux.NewRouter()
     route.HandleFunc("/register", Register).Methods("POST")
     route.HandleFunc("/create", CreateContainer).Methods("POST")
-    route.HandleFunc("/request", GetConfig).Methods("POST")
+    route.HandleFunc("/request", GetContainers).Methods("POST")
     route.HandleFunc("/delete", DeleteByTag).Methods("POST")
     route.HandleFunc("/stop", StopByTag).Methods("POST")
     route.HandleFunc("/start", StartByTag).Methods("POST")
+    route.HandleFunc("/pause", PauseByTag).Methods("POST")
+    route.HandleFunc("/restart", RestartByTag).Methods("POST")
+
 
     // HTTP 서버 설정
     srv := &http.Server{
