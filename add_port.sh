@@ -6,7 +6,6 @@ then
 else
     echo "PROCEEDING TO REGISTER PORT"
 fi
-if 
 tail -n 1 /etc/nginx/nginx.conf | wc -c | xargs -I {} truncate /etc/nginx/nginx.conf -s -{}
 echo "
 	server {

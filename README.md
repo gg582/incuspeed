@@ -8,10 +8,11 @@ Default distro: :ubuntu: Ubuntu 24.04
 2. Run the following commands:  
    ```bash
    make
-   ./initial_setup.sh --reconfigure-lxd
+   ./initial_setup.sh --reconfigure-incus
    systemctl start --now linuxVirtualization
    ```  
 3. The default SSH management port and Xrdp management port are assigned.  
+  **WARNING: This program resets nginx config! be sure to modify nginx.conf in this repository before initial setup.
 
 ## :computer: **GUI Application Usage**  
 1. Navigate to the application directory:  
