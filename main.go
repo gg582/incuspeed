@@ -2,8 +2,10 @@ package main
 
 import (
     client "github.com/lxc/incus/client"
-    httpRequest "github.com/yoonjin67/lvirt_applicationUnit/http_request"
-    iUnit "github.com/yoonjin67/lvirt_applicationUnit/incusUnit"
+    http_request "github.com/yoonjin67/linux_virt_unit/http_request"
+    linux_virt "github.com/yoonjin67/linux_virt_unit"
+    db "github.com/yoonjin67/linux_virt_unit/mongo_connect"
+    incus_unit "github.com/yoonjin67/linux_virt_unit/incus_unit"
     "log"
     "container/heap"
 )
@@ -13,20 +15,26 @@ var WorkQueue chan int
 
 func main() {
     // PortHeap 초기화
-    iUnit.PortHeap = &iUnit.IntHeap{}
-    heap.Init(iUnit.PortHeap)
+    incus_unit.PortHeap = &incus_unit.IntHeap{}
+    incus_unit.WorkQueue = &incus_unit.ContainerQueue{
+        Tasks: make(chan linux_virt.ContainerInfo, 100),
+    }
+    heap.Init(incus_unit.PortHeap)
+
+    log.Println("Port heap allocation succeed.")
 
     var err error
-    iUnit.IncusCli, err = client.ConnectIncusUnix("", nil)
+    db.InitMongoDB()
+    defer db.CloseMongoDB()
+    incus_unit.IncusCli, err = client.ConnectIncusUnix("", nil)
     if err != nil {
-        log.Fatalf("Failed to connect to LXD: %v", err)
+        log.Fatalf("Failed to connect to Incus: %v", err)
     }
 
     // WorkQueue 초기화
-    WorkQueue = make(chan int, 100)
 
     // HTTP 요청 초기화
-    httpRequest.InitHttpRequest(iUnit.WorkQueue)
+    http_request.InitHttpRequest(incus_unit.WorkQueue)
 
     // 컨테이너 작업자 풀 시작
 }
