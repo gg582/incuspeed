@@ -26,7 +26,7 @@ incus launch images:ubuntu/$VERSION/$ARCH $TAG
 
 
 while true ; do 
-	CONTAINER_IP=`incus list |  grep $TAG | awk '{print $7}' | grep --invert-match "|" | tr -s " " `
+	CONTAINER_IP=`incus list |  grep $TAG | awk '{print $2}'`
 	LENGTH_IP=`echo $CONTAINER_IP | awk '{print length}'`
 	if [  $LENGTH_IP = 0 ]; then
 		sleep 0.5
@@ -56,15 +56,14 @@ echo -n "CURRENT IP:"
 echo $CONTAINER_IP
 incus file push -r /usr/local/bin/linuxVirtualization/conSSH.sh $TAG/
 incus exec $TAG -- /bin/apt-get update -y
-incus exec $TAG -- /bin/apt-get install -y unzip openssh-server openssh-client sudo
+incus exec $TAG -- /bin/apt-get install -y unzip openssh-server openssh-client sudo --no-install-recommends
 incus exec $TAG -- useradd -m -s /bin/bash $USERNAME
 incus exec $TAG -- sudo usermod -aG sudo "$USERNAME"
 incus exec $TAG -- /bin/bash -c 'echo "$PASSWORD\n$PASSWORD" | passwd $USERNAME'
-incus exec $TAG -- echo "$USERNAME ALL=(ALL:ALL) ALL" >> /etc/sudoers
+incus exec $TAG -- sh -c "echo '$USERNAME ALL=(ALL:ALL) ALL' >> /etc/sudoers"
 echo $TAG > /usr/local/bin/linuxVirtualization/container/latest_access
 incus exec $TAG -- /bin/apt-get install -y openssh-server sshpass
 incus exec $TAG -- /bin/rm -rf /etc/ssh/sshd_config
-incus exec $TAG -- /bin/systemctl restart --now ssh
 incus exec $TAG -- /bin/bash /conSSH.sh $TAG
 echo "LXC DEVICE STATUS:"
 incus list

@@ -1,6 +1,3 @@
 #!/bin/bash
 apt-get update -y
-apt-get install -y sshpass
-cd /
-mv linuxVirtualization linuxVirtualization
-cd /linuxVirtualization
+apt-get install -y sshpass --no-install-recommends

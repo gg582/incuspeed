@@ -10,7 +10,6 @@ then
     rm -r /usr/local/bin/delete_container.sh
     rm -r /usr/local/bin/easy_access.sh
     rm -r /usr/local/bin/add_port.sh
-    rm -r /usr/local/bin/init_server.sh
     rm -r /usr/local/bin/remove-service.sh
     rm -r /usr/local/bin/initial_setup.sh
     rm -r /usr/local/bin/install_svc.sh
