@@ -1,2 +1,2 @@
 all:
-	go build server.go
+	go build -o server

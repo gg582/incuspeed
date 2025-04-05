@@ -1,0 +1,6 @@
+kivy
+kivymd
+pycryptodome
+bcrypt
+requests
+

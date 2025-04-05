@@ -1,21 +1,27 @@
-from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
-from kivy.uix.label import Label
+from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.gridlayout import GridLayout
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.label import MDLabel
+from kivy.uix.widget import Widget
+from kivymd.uix.selectioncontrol import MDCheckbox
+from kivymd.uix.list import MDList, OneLineAvatarIconListItem
+from kivymd.uix.scrollview import MDScrollView
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.metrics import dp
+from kivy.utils import platform
+from kivy.core.window import Window
 import requests
 import json
 import base64
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
+import sys
 
 SERVER_URL = "http://hobbies.yoonjin2.kr:32000"
 
 class CryptoHelper:
-    """AES 암호화 및 복호화를 위한 유틸리티 클래스"""
     @staticmethod
     def pad(s):
         return s + (AES.block_size - len(s) % AES.block_size) * chr(AES.block_size - len(s) % AES.block_size)
@@ -42,148 +48,240 @@ class CryptoHelper:
 class MainScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        layout = BoxLayout(orientation='vertical')
+        layout = MDBoxLayout(orientation='vertical', padding=dp(30), spacing=dp(25), size_hint=(1, 1))
+        self.layout = layout
+        central_layout = MDBoxLayout(orientation='vertical', size_hint=(None, None), width=min(dp(320), Window.width * 0.8), pos_hint={'center_x': 0.5}, spacing=dp(20))
+        central_layout.bind(minimum_height=central_layout.setter('height'))
 
-        self.username_input = TextInput(hint_text="Username")
-        self.password_input = TextInput(hint_text="Password", password=True)
-        layout.add_widget(self.username_input)
-        layout.add_widget(self.password_input)
+        title_label = MDLabel(text="Linux Container Manager", halign='center', theme_text_color="Primary", font_style="H6")
+        central_layout.add_widget(title_label)
 
-        self.register_button = Button(text="Register")
-        self.register_button.bind(on_press=self.register_user)
-        layout.add_widget(self.register_button)
+        self.username_input = MDTextField(hint_text="Username", size_hint_x=None, width=central_layout.width)
+        self.password_input = MDTextField(hint_text="Password", password=True, size_hint_x=None, width=central_layout.width)
+        central_layout.add_widget(self.username_input)
+        central_layout.add_widget(self.password_input)
 
-        self.create_container_button = Button(text="Create Container")
-        self.create_container_button.bind(on_press=self.create_container)
-        layout.add_widget(self.create_container_button)
+        buttons_container = MDBoxLayout(orientation='vertical', spacing=dp(15), size_hint_y=None, pos_hint={'center_x': 0.5}, adaptive_size = True)
+        self.create_container_button = MDRaisedButton(text="Create Container", on_release=self.create_container, size_hint_x=None)
+        self.register_button = MDRaisedButton(text="Register", on_release=self.register_user, size_hint_x=None)
+        self.manage_button = MDRaisedButton(text="Manage Containers", on_release=self.go_to_manage, size_hint_x=None)
 
-        self.manage_button = Button(text="Manage Containers")
-        self.manage_button.bind(on_press=self.go_to_manage)
-        layout.add_widget(self.manage_button)
+        buttons_container.add_widget(self.create_container_button)
+        buttons_container.add_widget(self.register_button)
+        buttons_container.add_widget(self.manage_button)
 
-        self.result_label = Label(text="")
+        central_layout.add_widget(Widget(size_hint_y=1))
+        central_layout.add_widget(buttons_container)
+
+        layout.add_widget(central_layout)
+
+        self.result_label = MDLabel(text="", theme_text_color="Secondary", halign='center', font_style="Caption")
         layout.add_widget(self.result_label)
 
         self.add_widget(layout)
 
     def go_to_manage(self, instance):
+        if not self.username_input.text or not self.password_input.text:
+            self.result_label.text = "Please enter username and password before managing."
+            return
+        self.send_user_info()
         self.manager.current = "manage"
 
     def register_user(self, instance):
+        if not self.username_input.text or not self.password_input.text:
+            self.result_label.text = "Please enter username and password to register."
+            return
+        self.send_user_info()
         self.send_request("register")
 
     def create_container(self, instance):
+        if not self.username_input.text or not self.password_input.text:
+            self.result_label.text = "Please enter username and password to create a container."
+            return
+        if not hasattr(self.manager, 'user_info') or 'username' not in self.manager.user_info or 'key' not in self.manager.user_info or 'username_iv' not in self.manager.user_info:
+            self.result_label.text = "User information not available. Please register or log in again."
+            return
         self.send_request("create")
 
-    def send_request(self, endpoint):
+    def send_user_info(self):
         username = self.username_input.text
         password = self.password_input.text
         key = base64.b64encode(get_random_bytes(32)).decode()
 
         encrypted_username, iv_username = CryptoHelper.encrypt(username, key)
-        encrypted_password, iv_password = CryptoHelper.encrypt(password, key)
+        password_bytes = password.encode('utf-8')
+        hashed_password = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8') # Decode to string
 
         data = {
             "username": encrypted_username,
             "username_iv": iv_username,
-            "password": encrypted_password,
-            "password_iv": iv_password,
+            "password": hashed_password,
             "key": key,
-            "vmstatus": "stopped"
         }
         self.manager.user_info = data
 
-        response = requests.post(f"{SERVER_URL}/{endpoint}", json=data)
-        self.result_label.text = response.text
+    def send_request(self, endpoint):
+        headers = {'Content-Type': 'application/json'}
+        if endpoint == "register":
+            data = self.manager.user_info
+        elif endpoint == "create":
+            if not hasattr(self.manager, 'user_info'):
+                self.result_label.text = "User information not found. Please register first."
+                return
 
-class ManageScreen(Screen):
+            password = self.password_input.text
+            key = self.manager.user_info['key']
+            encrypted_password, password_iv = CryptoHelper.encrypt(password, key)
+            data = {
+                "username": self.manager.user_info['username'],
+                "username_iv": self.manager.user_info['username_iv'],
+                "password": encrypted_password,
+                "password_iv": password_iv,
+                "key": self.manager.user_info['key'],
+            }
+        else:
+            if not hasattr(self.manager, 'user_info'):
+                self.result_label.text = "User information not found. Please register first."
+                return
+            data = {
+                "username": self.manager.user_info['username'],
+                "username_iv": self.manager.user_info['username_iv'],
+                "key": self.manager.user_info['key'],
+            }
+            if endpoint == "request":
+                pass # Use existing user info for listing
+            else:
+                # For other actions like stop, start, delete, send only the tag
+                return
+
+        try:
+            if endpoint in ["start", "stop", "restart", "pause", "delete"]:
+                response = requests.post(f"{SERVER_URL}/{endpoint}", data=self.current_selected_tag)
+            else:
+                response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
+            response.raise_for_status()
+            self.result_label.text = response.text
+            if endpoint == "request":
+                try:
+                    containers = json.loads(response.text)
+                    if self.manager.current == "manage":
+                        manage_screen = self.manager.get_screen("manage")
+                        manage_screen.update_container_list(containers)
+                except json.JSONDecodeError:
+                    if self.manager.current == "manage":
+                        manage_screen = self.manager.get_screen("manage")
+                        manage_screen.container_list.clear_widgets()
+                        manage_screen.container_list.add_widget(MDLabel(text="Failed to decode container list", theme_text_color="Error", halign='center'))
+
+        except requests.exceptions.RequestException as e:
+            self.result_label.text = f"Error: {e}"
+        except Exception as e:
+            self.result_label.text = f"An unexpected error occurred: {e}"
+
+class ContainerListItem(OneLineAvatarIconListItem):
+    tag = StringProperty()
+    port = StringProperty()
+    status = StringProperty()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.layout = BoxLayout(orientation='vertical')
+        self.ids._left_container.halign = 'left'
+        self.ids._text_container.halign = 'left'
+        self._checkbox = MDCheckbox()
+        self.add_widget(self._checkbox)
 
-        self.container_grid = GridLayout(cols=3)
-        self.layout.add_widget(self.container_grid)
+    @property
+    def checkbox_active(self):
+        return self._checkbox.active
 
-        self.refresh_button = Button(text="Refresh Containers")
-        self.refresh_button.bind(on_press=self.list_containers)
-        self.layout.add_widget(self.refresh_button)
+    @checkbox_active.setter
+    def checkbox_active(self, value):
+        self._checkbox.active = value
 
-        self.stop_button = Button(text="Stop Selected")
-        self.stop_button.bind(on_press=lambda x: self.manage_container("stop"))
-        self.layout.add_widget(self.stop_button)
+    def on_status(self, instance, value):
+        self.text = f"{self.tag} (Port: {self.port}, Status: {value.capitalize()})"
 
-        self.start_button = Button(text="Start Selected")
-        self.start_button.bind(on_press=lambda x: self.manage_container("start"))
-        self.layout.add_widget(self.start_button)
+class ManageScreen(Screen):
+    container_list = ObjectProperty(None)
+    feedback_label = ObjectProperty(None)
 
-        self.delete_button = Button(text="Delete Selected")
-        self.delete_button.bind(on_press=lambda x: self.manage_container("delete"))
-        self.layout.add_widget(self.delete_button)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.layout = MDBoxLayout(orientation='vertical', padding=dp(30), spacing=dp(25), size_hint=(1, 1))
 
-        self.go_back_button = Button(text="Go Back")
-        self.go_back_button.bind(on_press=lambda x: setattr(self.manager, "current", "main"))
-        self.layout.add_widget(self.go_back_button)
+        title_layout = MDBoxLayout(orientation='horizontal', size_hint_y=None, padding=(dp(20), 0))
+        title_label = MDLabel(text="Container Management", halign='center', theme_text_color="Primary", font_style="H5")
+        title_layout.add_widget(title_label)
+        self.layout.add_widget(title_layout)
+
+        button_layout_top = MDBoxLayout(orientation='horizontal', spacing=dp(15), size_hint_y=None, padding=(dp(20), 0))
+        self.refresh_button = MDRaisedButton(text="Refresh", on_release=self.list_containers_and_display_json, size_hint_x=0.5)
+        self.go_back_button = MDRaisedButton(text="Back", on_release=lambda x: setattr(self.manager, "current", "main"), size_hint_x=0.5)
+        button_layout_top.add_widget(self.refresh_button)
+        button_layout_top.add_widget(self.go_back_button)
+        self.layout.add_widget(button_layout_top)
+
+        self.scroll = MDScrollView()
+        self.container_list = MDList(spacing=dp(8), size_hint_y=None)
+        self.container_list.bind(minimum_height=self.container_list.setter('height'))
+        self.scroll.add_widget(self.container_list)
+        self.layout.add_widget(self.scroll)
+
+        button_layout_bottom = MDBoxLayout(orientation='horizontal', spacing=dp(15), size_hint_y=None, padding=(dp(20), 0))
+        self.start_button = MDRaisedButton(text="Start", on_release=lambda x: self.manage_container("start"), size_hint_x=0.2)
+        self.stop_button = MDRaisedButton(text="Stop", on_release=lambda x: self.manage_container("stop"), size_hint_x=0.2)
+        self.pause_button = MDRaisedButton(text="Pause", on_release=lambda x: self.manage_container("pause"), size_hint_x=0.2)
+        self.restart_button = MDRaisedButton(text="Restart", on_release=lambda x: self.manage_container("restart"), size_hint_x=0.2)
+        self.delete_button = MDRaisedButton(text="Delete", on_release=lambda x: self.manage_container("delete"), size_hint_x=0.2)
+        button_layout_bottom.add_widget(self.start_button)
+        button_layout_bottom.add_widget(self.stop_button)
+        button_layout_bottom.add_widget(self.pause_button)
+        button_layout_bottom.add_widget(self.restart_button)
+        button_layout_bottom.add_widget(self.delete_button)
+        self.layout.add_widget(button_layout_bottom)
+
+        self.feedback_label = MDLabel(text="", theme_text_color="Secondary", halign='center', font_style="Caption", size_hint_y=None, padding=(0, dp(10)))
+        self.layout.add_widget(self.feedback_label)
 
         self.add_widget(self.layout)
         self.selected_containers = {}
-        self.toggle_group = "container_group"
 
-    def list_containers(self, instance):
-        if not self.manager or not hasattr(self.manager, 'user_info'):
+    def list_containers_and_display_json(self, instance):
+        if not hasattr(self.manager, 'user_info'):
+            self.feedback_label.text = "User information not found. Please log in again."
             return
+        self.manager.get_screen("main").send_request("request")
 
-        try:
-            response = requests.post(f"{SERVER_URL}/request", json=self.manager.user_info)
-            print(response.text)
-            response.raise_for_status()
-            containers = json.loads(response.text)
-            self.container_grid.clear_widgets()
-            self.selected_containers.clear()
-
-            for container in containers:
-                port_label = Label(text=str(container['serverport']))
-                stats_label = Label(text=str(container['vmstatus']))
-                tag_label = Label(text=container['tag'])
-                toggle_button = ToggleButton(group=self.toggle_group)
-                self.selected_containers[container['tag']] = toggle_button
-
-                self.container_grid.add_widget(port_label)
-                self.container_grid.add_widget(tag_label)
-                self.container_grid.add_widget(toggle_button)
-                self.container_grid.add_widget(stats_label)
-        except requests.exceptions.RequestException as e:
-            error_label = Label(text=f"Failed to refresh containers: {e}")
-            self.container_grid.clear_widgets()
-            self.container_grid.add_widget(error_label)
-        except json.JSONDecodeError as e:
-            error_label = Label(text=f"Failed to decode server response.")
-            self.container_grid.clear_widgets()
-            self.container_grid.add_widget(error_label)
+    def update_container_list(self, containers):
+        self.container_list.clear_widgets()
+        self.selected_containers = {}
+        for container in containers:
+            item = ContainerListItem(tag=container['tag'], port=container['serverport'], status=container['vmstatus'])
+            self.container_list.add_widget(item)
+            self.selected_containers[container['tag']] = item
 
     def manage_container(self, action):
-        if not self.manager or not hasattr(self.manager, 'user_info'):
+        selected_items = [item for item in self.container_list.children if isinstance(item, ContainerListItem) and item.checkbox_active]
+        if not selected_items:
+            self.feedback_label.text = "Please select at least one container."
             return
 
-        selected_tags = [tag for tag, tb in self.selected_containers.items() if tb.state == 'down']
-        for tag in selected_tags:
-            data = tag
-            try:
-                response = requests.post(f"{SERVER_URL}/{action}", json=data)
-                response.raise_for_status()
-            except requests.exceptions.RequestException as e:
-                error_label = Label(text=f"Failed to {action} container {tag}.")
-                self.container_grid.add_widget(error_label)
+        main_screen = self.manager.get_screen("main")
+        for item in selected_items:
+            main_screen.current_selected_tag = item.tag
+            main_screen.send_request(action)
+        main_screen.current_selected_tag = None # Reset selection after action
+        self.list_containers_and_display_json(None)
 
-        self.list_containers(None)
-
-class ContainerApp(App):
+class ContainerApp(MDApp):
     def build(self):
+        self.theme_cls.theme_style = "Light"
         sm = ScreenManager()
         sm.user_info = {}
-        sm.add_widget(MainScreen(name="main"))
+        main_screen = MainScreen(name="main")
+        sm.add_widget(main_screen)
         sm.add_widget(ManageScreen(name="manage"))
         return sm
 
 if __name__ == "__main__":
     ContainerApp().run()
-#Auto Generated by Gemini

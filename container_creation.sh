@@ -26,27 +26,28 @@ incus launch images:ubuntu/$VERSION/$ARCH $TAG
 
 
 while true ; do 
-	CONTAINER_IP=`incus list |  grep $TAG | awk '{print $2}'`
+	CONTAINER_IP=`incus list |  grep $TAG | awk '{print $6}'`
 	LENGTH_IP=`echo $CONTAINER_IP | awk '{print length}'`
-	if [  $LENGTH_IP = 0 ]; then
+	if [  "$LENGTH_IP" -lt 7 ]; then
 		sleep 0.5
 	else 
 		break
  fi
 done
+echo "container ip: $CONTAINER_IP"
 tail -n 1 /etc/nginx/nginx.conf | wc -c | xargs -I {} truncate /etc/nginx/nginx.conf -s -{}
 echo "
 	server {
-		listen [::]:$((PORT+1));
-		proxy_pass [$CONTAINER_IP]:30000;
+		listen 0.0.0.0:$((PORT));
+		proxy_pass $CONTAINER_IP:22;
 	}
 	server {
-		listen [::]:$PORT;
-		proxy_pass [$CONTAINER_IP]:3389;
+		listen 0.0.0.0:$((PORT+1));
+		proxy_pass $CONTAINER_IP:30001;
 	}
 	server {
-		listen [::]:$((PORT+2));
-		proxy_pass [$CONTAINER_IP]:8080;
+		listen 0.0.0.0:$((PORT+2));
+		proxy_pass $CONTAINER_IP:30002;
 	}
 
 }" >> /etc/nginx/nginx.conf
@@ -57,12 +58,14 @@ echo $CONTAINER_IP
 incus file push -r /usr/local/bin/linuxVirtualization/conSSH.sh $TAG/
 incus exec $TAG -- /bin/apt-get update -y
 incus exec $TAG -- /bin/apt-get install -y unzip openssh-server openssh-client sudo --no-install-recommends
-incus exec $TAG -- useradd -m -s /bin/bash $USERNAME
-incus exec $TAG -- sudo usermod -aG sudo "$USERNAME"
-incus exec $TAG -- /bin/bash -c 'echo "$PASSWORD\n$PASSWORD" | passwd $USERNAME'
+incus exec $TAG -- sh -c "useradd -m -s /bin/bash $USERNAME"
+incus exec $TAG -- sh -c "usermod -aG sudo $USERNAME"
+echo -n "$USERNAME:$PASSWORD" > /tmp/passfile
+incus file push /tmp/passfile "$TAG/tmp/passfile"
+incus exec "$TAG" -- bash -c "chpasswd < /tmp/passfile"
+rm -rf /tmp/passfile
 incus exec $TAG -- sh -c "echo '$USERNAME ALL=(ALL:ALL) ALL' >> /etc/sudoers"
 echo $TAG > /usr/local/bin/linuxVirtualization/container/latest_access
-incus exec $TAG -- /bin/apt-get install -y openssh-server sshpass
 incus exec $TAG -- /bin/rm -rf /etc/ssh/sshd_config
 incus exec $TAG -- /bin/bash /conSSH.sh $TAG
 echo "LXC DEVICE STATUS:"
