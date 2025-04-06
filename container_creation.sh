@@ -68,5 +68,5 @@ incus exec $TAG -- sh -c "echo '$USERNAME ALL=(ALL:ALL) ALL' >> /etc/sudoers"
 echo $TAG > /usr/local/bin/linuxVirtualization/container/latest_access
 incus exec $TAG -- /bin/rm -rf /etc/ssh/sshd_config
 incus exec $TAG -- /bin/bash /conSSH.sh $TAG
-echo "LXC DEVICE STATUS:"
+echo "Incus DEVICE STATUS:"
 incus list

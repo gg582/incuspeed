@@ -1,7 +1,7 @@
 # 🐧 Linux Virtualization RestAPI Server and Front-End App
 
-> **A super-lightweight LXD container management GUI for Linux systems**  
-> Default Distro: **🟣 Ubuntu 24.04**
+> **A super-lightweight LXD/Incus container management GUI for Linux systems**  
+> Current Distro: **🟣 Ubuntu 24.04**
 
 ---
 
@@ -68,7 +68,7 @@ make
 
 ## 🧱 Virtual Machine Management
 
-- Powered by **LXD containers**
+- Powered by **LXD/Incus containers**
 - Integrated with Nginx reverse-proxy (experimental!)
 - Containers are isolated, and each is assigned its own port.
 
@@ -88,6 +88,12 @@ make
 └── README.md          # This file
 ```
 
+---
+
+## 📜 TODO
+- Support for other distributions
+- Incus integration for RestAPI /create path
+ 
 ---
 
 ## 🤝 Contributing
