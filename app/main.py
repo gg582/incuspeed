@@ -49,7 +49,7 @@ class CryptoHelper:
 class MainScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        layout = MDBoxLayout(orientation='vertical', padding=dp(30), spacing=dp(25), size_hint=(1, 1))
+        layout = MDBoxLayout(orientation='vertical', padding=dp(8), spacing=dp(8), size_hint=(1, 1), adaptive_height=True)
         self.layout = layout
         central_layout = MDBoxLayout(orientation='vertical', size_hint=(None, None), width=min(dp(320), Window.width * 0.8), pos_hint={'center_x': 0.5}, spacing=dp(20))
         central_layout.bind(minimum_height=central_layout.setter('height'))
@@ -179,28 +179,44 @@ class MainScreen(Screen):
         except Exception as e:
             self.result_label.text = f"An unexpected error occurred: {e}"
 
-class ContainerListItem(OneLineAvatarIconListItem):
+class ContainerListItem(MDBoxLayout):
     tag = StringProperty()
     port = StringProperty()
     status = StringProperty()
+    checkbox_active = ObjectProperty(False)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.ids._left_container.halign = 'left'
-        self.ids._text_container.halign = 'left'
-        self._checkbox = MDCheckbox()
+        self.orientation = 'horizontal'
+        self.padding = dp(8)
+        self.spacing = dp(8)
+        self.size_hint_y = None
+        self.height = dp(70)
+
+        self._checkbox = MDCheckbox(on_release=self.on_checkbox_toggle)
         self.add_widget(self._checkbox)
 
-    @property
-    def checkbox_active(self):
-        return self._checkbox.active
+        self.text_container = MDBoxLayout(orientation='vertical', adaptive_height=True, size_hint_x=1)
+        self.tag_label = MDLabel(text=f"{self.tag}", halign='left', adaptive_height=True, theme_text_color='Primary')
+        self.port_status_label = MDLabel(text=f"Port: {self.port}, Status: {self.status.capitalize()}", halign='left', adaptive_height=True, theme_text_color='Secondary')
+        self.text_container.add_widget(self.tag_label)
+        self.text_container.add_widget(self.port_status_label)
+        self.add_widget(self.text_container)
 
-    @checkbox_active.setter
-    def checkbox_active(self, value):
-        self._checkbox.active = value
+    def on_tag(self, instance, value):
+        if hasattr(self, 'tag_label'): # 속성이 생성되었는지 확인
+            self.tag_label.text = f"Tag: {value}"
+
+    def on_port(self, instance, value):
+        if hasattr(self, 'port_status_label'): # 속성이 생성되었는지 확인
+            self.port_status_label.text = f"Port: {value}, Status: {self.status.capitalize()}"
 
     def on_status(self, instance, value):
-        self.text = f"{self.tag} (Port: {self.port}, Status: {value.capitalize()})"
+        if hasattr(self, 'port_status_label'): # 속성이 생성되었는지 확인
+            self.port_status_label.text = f"Port: {self.port}, Status: {value.capitalize()}"
+
+    def on_checkbox_toggle(self, checkbox):
+        self.checkbox_active = checkbox.active
 
 class ManageScreen(Screen):
     container_list = ObjectProperty(None)
@@ -208,40 +224,42 @@ class ManageScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.layout = MDBoxLayout(orientation='vertical', padding=dp(30), spacing=dp(25), size_hint=(1, 1))
+        self.layout = MDBoxLayout(orientation='vertical', padding=dp(8), spacing=dp(4), size_hint=(1, 1)) # layout 간격 및 padding 줄임
 
-        title_layout = MDBoxLayout(orientation='horizontal', size_hint_y=None, padding=(dp(20), 0))
-        title_label = MDLabel(text="Container Management", halign='center', theme_text_color="Primary", font_style="H5")
+        title_layout = MDBoxLayout(orientation='horizontal', size_hint_y=None, padding=(dp(4), 0)) # title padding 줄임
+        title_label = MDLabel(text="Container Management", halign='center', theme_text_color="Primary", font_style="H6")
         title_layout.add_widget(title_label)
         self.layout.add_widget(title_layout)
 
-        button_layout_top = MDBoxLayout(orientation='horizontal', spacing=dp(15), size_hint_y=None, padding=(dp(20), 0))
-        self.refresh_button = MDRaisedButton(text="Refresh", on_release=self.list_containers_and_display_json, size_hint_x=0.5)
-        self.go_back_button = MDRaisedButton(text="Back", on_release=lambda x: setattr(self.manager, "current", "main"), size_hint_x=0.5)
-        button_layout_top.add_widget(self.refresh_button)
-        button_layout_top.add_widget(self.go_back_button)
-        self.layout.add_widget(button_layout_top)
 
         self.scroll = MDScrollView()
-        self.container_list = MDList(spacing=dp(8), size_hint_y=None)
+        self.container_list = MDList(spacing=dp(4), padding=dp(16), size_hint_y=None) # MDList 간격 줄임
         self.container_list.bind(minimum_height=self.container_list.setter('height'))
         self.scroll.add_widget(self.container_list)
         self.layout.add_widget(self.scroll)
 
-        button_layout_bottom = MDBoxLayout(orientation='horizontal', spacing=dp(15), size_hint_y=None, padding=(dp(20), 0))
+        button_layout_bottom = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) # 버튼 레이아웃 간격 및 padding 줄임
+        button_layout_bottom_second_line = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) # 버튼 레이아웃 간격 및 padding 줄임
+        button_layout_bottom_third_line = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) # 버튼 레이아웃 간격 및 padding 줄임
         self.start_button = MDRaisedButton(text="Start", on_release=lambda x: self.manage_container("start"), size_hint_x=0.2)
         self.stop_button = MDRaisedButton(text="Stop", on_release=lambda x: self.manage_container("stop"), size_hint_x=0.2)
         self.pause_button = MDRaisedButton(text="Pause", on_release=lambda x: self.manage_container("pause"), size_hint_x=0.2)
         self.restart_button = MDRaisedButton(text="Restart", on_release=lambda x: self.manage_container("restart"), size_hint_x=0.2)
         self.delete_button = MDRaisedButton(text="Delete", on_release=lambda x: self.manage_container("delete"), size_hint_x=0.2)
+        self.refresh_button = MDRaisedButton(text="Refresh", on_release=self.list_containers_and_display_json, size_hint_x=0.5)
+        self.go_back_button = MDRaisedButton(text="Back", on_release=lambda x: setattr(self.manager, "current", "main"), size_hint_x=0.5)
         button_layout_bottom.add_widget(self.start_button)
         button_layout_bottom.add_widget(self.stop_button)
-        button_layout_bottom.add_widget(self.pause_button)
-        button_layout_bottom.add_widget(self.restart_button)
         button_layout_bottom.add_widget(self.delete_button)
+        button_layout_bottom_second_line.add_widget(self.pause_button)
+        button_layout_bottom_second_line.add_widget(self.restart_button)
+        button_layout_bottom_third_line.add_widget(self.refresh_button)
+        button_layout_bottom_third_line.add_widget(self.go_back_button)
         self.layout.add_widget(button_layout_bottom)
+        self.layout.add_widget(button_layout_bottom_second_line)
+        self.layout.add_widget(button_layout_bottom_third_line)
 
-        self.feedback_label = MDLabel(text="", theme_text_color="Secondary", halign='center', font_style="Caption", size_hint_y=None, padding=(0, dp(10)))
+        self.feedback_label = MDLabel(text="", theme_text_color="Secondary", halign='center', font_style="Caption", size_hint_y=None, padding=(0, dp(5))) # feedback label padding 줄임
         self.layout.add_widget(self.feedback_label)
 
         self.add_widget(self.layout)
