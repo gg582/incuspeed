@@ -156,7 +156,7 @@ class MainScreen(Screen):
                 return
 
         try:
-            if endpoint in ["start", "stop", "restart", "pause", "delete"]:
+            if endpoint in ["start", "stop", "restart", "pause", "delete", "freeze", "unfreeze"]:
                 response = requests.post(f"{SERVER_URL}/{endpoint}", data=self.current_selected_tag)
             else:
                 response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
