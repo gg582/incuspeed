@@ -145,7 +145,8 @@ class MainScreen(Screen):
                 "password": encrypted_password,
                 "password_iv": password_iv,
                 "key": self.manager.user_info['key'],
-            }
+            } 
+            response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
     
         else:
             if not hasattr(self.manager, 'user_info'):
