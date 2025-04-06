@@ -1,5 +1,5 @@
 [Unit]
-Description=MineCraft DaaS Service
+Description=Linux Virtualization PaaS Service
 
 [Service]
 Type=forking
