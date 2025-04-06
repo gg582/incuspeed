@@ -130,6 +130,7 @@ class MainScreen(Screen):
     
         if endpoint == "register":
             data = self.manager.user_info
+            response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
     
         elif endpoint == "create":
             if not hasattr(self.manager, 'user_info'):
