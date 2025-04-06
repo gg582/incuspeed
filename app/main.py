@@ -123,13 +123,15 @@ class MainScreen(Screen):
 
     def send_request(self, endpoint):
         headers = {'Content-Type': 'application/json'}
+    
         if endpoint == "register":
             data = self.manager.user_info
+    
         elif endpoint == "create":
             if not hasattr(self.manager, 'user_info'):
                 self.result_label.text = "User information not found. Please register first."
                 return
-
+    
             password = self.password_input.text
             key = self.manager.user_info['key']
             encrypted_password, password_iv = CryptoHelper.encrypt(password, key)
@@ -140,28 +142,34 @@ class MainScreen(Screen):
                 "password_iv": password_iv,
                 "key": self.manager.user_info['key'],
             }
+    
         else:
             if not hasattr(self.manager, 'user_info'):
                 self.result_label.text = "User information not found. Please register first."
                 return
-            data = {
-                "username": self.manager.user_info['username'],
-                "username_iv": self.manager.user_info['username_iv'],
-                "key": self.manager.user_info['key'],
-            }
-            if endpoint == "request":
-                pass # Use existing user info for listing
-            else:
-                # For other actions like stop, start, delete, send only the tag
-                return
-
-        try:
+    
+            # For action endpoints like start, stop, restart, pause, delete, etc.
             if endpoint in ["start", "stop", "restart", "pause", "delete", "freeze", "unfreeze"]:
+                if not hasattr(self, 'current_selected_tag') or not self.current_selected_tag:
+                    self.result_label.text = "No container selected. Please select a container first."
+                    return
+    
+                # Send only the raw tag as the request body
                 response = requests.post(f"{SERVER_URL}/{endpoint}", data=self.current_selected_tag)
             else:
+                # For request or other actions that don't require container_tag
+                data = {
+                    "username": self.manager.user_info['username'],
+                    "username_iv": self.manager.user_info['username_iv'],
+                    "key": self.manager.user_info['key'],
+                }
                 response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
+    
+        try:
             response.raise_for_status()
             self.result_label.text = response.text
+    
+            # For 'request' endpoint, handle container list response
             if endpoint == "request":
                 try:
                     containers = json.loads(response.text)
@@ -173,11 +181,12 @@ class MainScreen(Screen):
                         manage_screen = self.manager.get_screen("manage")
                         manage_screen.container_list.clear_widgets()
                         manage_screen.container_list.add_widget(MDLabel(text="Failed to decode container list", theme_text_color="Error", halign='center'))
-
+    
         except requests.exceptions.RequestException as e:
             self.result_label.text = f"Error: {e}"
         except Exception as e:
             self.result_label.text = f"An unexpected error occurred: {e}"
+    
 
 class ContainerListItem(MDBoxLayout):
     tag = StringProperty()
