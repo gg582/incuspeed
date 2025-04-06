@@ -121,8 +121,12 @@ class MainScreen(Screen):
         }
         self.manager.user_info = data
 
+
     def send_request(self, endpoint):
         headers = {'Content-Type': 'application/json'}
+    
+        # Variable for the response
+        response = None
     
         if endpoint == "register":
             data = self.manager.user_info
@@ -149,7 +153,7 @@ class MainScreen(Screen):
                 return
     
             # For action endpoints like start, stop, restart, pause, delete, etc.
-            if endpoint in ["start", "stop", "restart", "pause", "delete", "freeze", "unfreeze"]:
+            if endpoint in ["start", "stop", "restart", "pause", "delete", "resume"]:
                 if not hasattr(self, 'current_selected_tag') or not self.current_selected_tag:
                     self.result_label.text = "No container selected. Please select a container first."
                     return
@@ -165,28 +169,31 @@ class MainScreen(Screen):
                 }
                 response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
     
-        try:
-            response.raise_for_status()
-            self.result_label.text = response.text
+        # Ensure the response is not None before proceeding
+        if response is not None:
+            try:
+                response.raise_for_status()  # Will raise an exception if the HTTP request failed
+                self.result_label.text = response.text
     
-            # For 'request' endpoint, handle container list response
-            if endpoint == "request":
-                try:
-                    containers = json.loads(response.text)
-                    if self.manager.current == "manage":
-                        manage_screen = self.manager.get_screen("manage")
-                        manage_screen.update_container_list(containers)
-                except json.JSONDecodeError:
-                    if self.manager.current == "manage":
-                        manage_screen = self.manager.get_screen("manage")
-                        manage_screen.container_list.clear_widgets()
-                        manage_screen.container_list.add_widget(MDLabel(text="Failed to decode container list", theme_text_color="Error", halign='center'))
+                # For 'request' endpoint, handle container list response
+                if endpoint == "request":
+                    try:
+                        containers = json.loads(response.text)
+                        if self.manager.current == "manage":
+                            manage_screen = self.manager.get_screen("manage")
+                            manage_screen.update_container_list(containers)
+                    except json.JSONDecodeError:
+                        if self.manager.current == "manage":
+                            manage_screen = self.manager.get_screen("manage")
+                            manage_screen.container_list.clear_widgets()
+                            manage_screen.container_list.add_widget(MDLabel(text="Failed to decode container list", theme_text_color="Error", halign='center'))
     
-        except requests.exceptions.RequestException as e:
-            self.result_label.text = f"Error: {e}"
-        except Exception as e:
-            self.result_label.text = f"An unexpected error occurred: {e}"
+            except requests.exceptions.RequestException as e:
+                self.result_label.text = f"Error: {e}"
     
+        else:
+            # Handle the case where the response is None
+            self.result_label.text = "No response from server."
 
 class ContainerListItem(MDBoxLayout):
     tag = StringProperty()
@@ -253,6 +260,7 @@ class ManageScreen(Screen):
         self.start_button = MDRaisedButton(text="Start", on_release=lambda x: self.manage_container("start"), size_hint_x=0.2)
         self.stop_button = MDRaisedButton(text="Stop", on_release=lambda x: self.manage_container("stop"), size_hint_x=0.2)
         self.pause_button = MDRaisedButton(text="Pause", on_release=lambda x: self.manage_container("pause"), size_hint_x=0.2)
+        self.resume_button = MDRaisedButton(text="Resume", on_release=lambda x: self.manage_container("resume"), size_hint_x=0.2)
         self.restart_button = MDRaisedButton(text="Restart", on_release=lambda x: self.manage_container("restart"), size_hint_x=0.2)
         self.delete_button = MDRaisedButton(text="Delete", on_release=lambda x: self.manage_container("delete"), size_hint_x=0.2)
         self.refresh_button = MDRaisedButton(text="Refresh", on_release=self.list_containers_and_display_json, size_hint_x=0.5)
@@ -262,6 +270,7 @@ class ManageScreen(Screen):
         button_layout_bottom.add_widget(self.delete_button)
         button_layout_bottom_second_line.add_widget(self.pause_button)
         button_layout_bottom_second_line.add_widget(self.restart_button)
+        button_layout_bottom_third_line.add_widget(self.resume_button)
         button_layout_bottom_third_line.add_widget(self.refresh_button)
         button_layout_bottom_third_line.add_widget(self.go_back_button)
         self.layout.add_widget(button_layout_bottom)
