@@ -175,7 +175,6 @@ class MainScreen(Screen):
         if response is not None:
             try:
                 response.raise_for_status()  # Will raise an exception if the HTTP request failed
-                self.result_label.text = response.text
     
                 # For 'request' endpoint, handle container list response
                 if endpoint == "request":
@@ -251,7 +250,7 @@ class ManageScreen(Screen):
 
 
         self.scroll = MDScrollView()
-        self.container_list = MDList(spacing=dp(4), padding=dp(16), size_hint_y=None) # MDList 간격 줄임
+        self.container_list = MDList(spacing=dp(24), padding=dp(24), size_hint_y=None) # MDList 간격 줄임
         self.container_list.bind(minimum_height=self.container_list.setter('height'))
         self.scroll.add_widget(self.container_list)
         self.layout.add_widget(self.scroll)
@@ -294,6 +293,14 @@ class ManageScreen(Screen):
     def update_container_list(self, containers):
         self.container_list.clear_widgets()
         self.selected_containers = {}
+        placeholder = MDLabel(
+        text="Container List",
+        halign='center',
+        theme_text_color="Hint",
+        size_hint_y=None,
+        height=dp(40),
+        )
+        self.container_list.add_widget(placeholder)
         for container in containers:
             item = ContainerListItem(tag=container['tag'], port=container['serverport'], status=container['vmstatus'])
             self.container_list.add_widget(item)
