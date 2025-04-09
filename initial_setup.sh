@@ -19,17 +19,17 @@ sleep 1
 cd ..
 cd linuxVirtualization
 apt-get update -y
-sudo apt remove ufw -y
-sudo apt-get install -y gnupg curl firewalld
+apt remove ufw -y
+apt-get install -y gnupg curl firewalld
 vi /etc/firewalld/firewalld.conf
 firewall-cmd --reload
 firewall-cmd --zone=public --add-port=32000/tcp
 curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | \
-   sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg \
+   gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg \
    --dearmor
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-sudo apt-get update -y
-sudo apt-get  -y install mongodb-org nginx nginx-extras
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+apt-get update -y
+apt-get  -y install mongodb-org nginx nginx-extras
 if [ ! -f "/var/lib/snapd/snap/bin" ]
 then
     echo "PATH=$PATH":/snap/bin"" >> /etc/environment
@@ -58,11 +58,11 @@ fi
 systemctl restart mongod
 if [ $OPTION = "--reconfigure-incus" ]
 then
-    sudo systemctl stop incus.socket
-    sudo systemctl stop incus.service
-    sudo apt-get  -y purge --autoremove incus
-    sudo ip link delete incusbr0
-    sudo rm -rf /var/lib/incus
+    systemctl stop incus.socket
+    systemctl stop incus.service
+    apt-get  -y purge --autoremove incus
+    ip link delete incusbr0
+    rm -rf /var/lib/incus
 	apt-get -y install incus
     systemctl enable --now incus.service
     systemctl enable --now incus.socket
@@ -103,11 +103,19 @@ firewall-cmd --permanent --zone=public --add-port 25565-60000/tcp
 firewall-cmd --permanent --zone=public --add-port 8843/udp
 firewall-cmd --permanent --zone=public --add-port 8843/tcp
 firewall-cmd --zone=trusted --change-interface=incusbr0 --permanent
+apt install iptables-persistent -y
+iptables -I FORWARD 1 -i incusbr0 -j ACCEPT
+iptables -I FORWARD 1 -o incusbr0 -j ACCEPT
+netfilter-persistent save
+
 #ausearch -c 'nginx' --raw | audit2allow -M my-nginx
 #semodule -X 300 -i my-nginx.pp
 ./install_svc.sh
 systemctl restart NetworkManager
 incus admin init
 incus launch images:ubuntu/$VERSION base
+incus exec base -- apt-get update
+incus exec base -- apt-get install -y openssh-server openssh-client sudo --no-install-recommends
 incus stop base
+incus publish base --alias ubuntu_2404
 incus delete base

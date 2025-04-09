@@ -12,10 +12,12 @@ import (
 // 전역 변수 선언
 
 func main() {
-    // PortHeap 초기화
+    // AvailablePorts 초기화
     incus_unit.InitWorkQueue()
-    incus_unit.PortHeap = &incus_unit.IntHeap{}
-    heap.Init(incus_unit.PortHeap)
+    incus_unit.AvailablePorts = &incus_unit.PortHeap{}
+    incus_unit.UnavailablePorts = &incus_unit.PortHeap{}
+    heap.Init(incus_unit.AvailablePorts)
+    heap.Init(incus_unit.UnavailablePorts)
 
     log.Println("Port heap allocation succeed.")
 

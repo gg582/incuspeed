@@ -59,8 +59,13 @@ class MainScreen(Screen):
 
         self.username_input = MDTextField(hint_text="Username", size_hint_x=None, width=central_layout.width)
         self.password_input = MDTextField(hint_text="Password", password=True, size_hint_x=None, width=central_layout.width)
+        self.container_name            = MDTextField(hint_text="Container Label", size_hint_x=None, width=central_layout.width)
+        self.container_tag             = MDTextField(hint_text="Container Tag"  , size_hint_x=None, width=central_layout.width)
+        self.distro                    = MDTextField(hint_text="distro:version", size_hint_x=None, width=central_layout.width)
         central_layout.add_widget(self.username_input)
         central_layout.add_widget(self.password_input)
+        central_layout.add_widget(self.distro)
+        central_layout.add_widget(self.container_tag)
 
         buttons_container = MDBoxLayout(orientation='vertical', spacing=dp(15), size_hint_y=None, pos_hint={'center_x': 0.5}, adaptive_size = True)
         self.create_container_button = MDRaisedButton(text="Create Container", on_release=self.create_container, size_hint_x=None)
@@ -140,12 +145,18 @@ class MainScreen(Screen):
             password = self.password_input.text
             key = self.manager.user_info['key']
             encrypted_password, password_iv = CryptoHelper.encrypt(password, key)
+            distro_and_version = self.distro.text.split(":")
+            distro = distro_and_version[0]
+            version = distro_and_version[1]
             data = {
                 "username": self.manager.user_info['username'],
                 "username_iv": self.manager.user_info['username_iv'],
                 "password": encrypted_password,
                 "password_iv": password_iv,
                 "key": self.manager.user_info['key'],
+                "tag": self.container_tag.text,
+                "distro": distro,
+                "version": version
             } 
             response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
     
@@ -200,6 +211,8 @@ class ContainerListItem(MDBoxLayout):
     tag = StringProperty()
     port = StringProperty()
     status = StringProperty()
+    distro = StringProperty()
+    version = StringProperty()
     checkbox_active = ObjectProperty(False)
 
     def __init__(self, **kwargs):
@@ -215,6 +228,7 @@ class ContainerListItem(MDBoxLayout):
 
         self.text_container = MDBoxLayout(orientation='vertical', adaptive_height=True, size_hint_x=1)
         self.tag_label = MDLabel(text=f"{self.tag}", halign='left', adaptive_height=True, theme_text_color='Primary')
+        self.distro_label = MDLabel(text=f"{self.distro}:{self.version}", halign='left', adaptive_height=True, theme_text_color='Primary')
         self.port_status_label = MDLabel(text=f"Port: {self.port}, Status: {self.status.capitalize()}", halign='left', adaptive_height=True, theme_text_color='Secondary')
         self.text_container.add_widget(self.tag_label)
         self.text_container.add_widget(self.port_status_label)
@@ -302,7 +316,7 @@ class ManageScreen(Screen):
         )
         self.container_list.add_widget(placeholder)
         for container in containers:
-            item = ContainerListItem(tag=container['tag'], port=container['serverport'], status=container['vmstatus'])
+            item = ContainerListItem(tag=container['tag'], port=container['serverport'], distro=container['distro'], version=container['version'],  status=container['vmstatus'])
             self.container_list.add_widget(item)
             self.selected_containers[container['tag']] = item
 
