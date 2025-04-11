@@ -1,0 +1,29 @@
+[ req ]
+default_bits        = 2048
+prompt              = no
+default_md          = sha256
+distinguished_name  = req_distinguished_name
+
+[ req_distinguished_name ]
+C  = KR
+ST = Gyeongsangbuk-do
+L  = Gyeongsan-si
+O  = LVirt Project
+CN = hobbies.yoonjin2.kr
+
+[ v3_ca ]
+subjectAltName = @alt_names
+basicConstraints = critical, CA:TRUE
+keyUsage = critical, keyCertSign, cRLSign
+
+[ v3_server ]
+subjectAltName = @alt_names
+basicConstraints = critical, CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+
+[ alt_names ]
+DNS.1 = hobbies.yoonjin2.kr
+DNS.2 = www.hobbies.yoonjin2.kr
+
+#auto generaated by ChatGPT

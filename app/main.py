@@ -19,8 +19,10 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 import sys
+import os
 
-SERVER_URL = "http://hobbies.yoonjin2.kr:32000"
+SERVER_URL = "https://hobbies.yoonjin2.kr:32000"
+cert_path = ""
 
 class CryptoHelper:
     @staticmethod
@@ -85,6 +87,7 @@ class MainScreen(Screen):
         layout.add_widget(self.result_label)
 
         self.add_widget(layout)
+        self.container_info = {}
 
     def go_to_manage(self, instance):
         if not self.username_input.text or not self.password_input.text:
@@ -135,7 +138,7 @@ class MainScreen(Screen):
     
         if endpoint == "register":
             data = self.manager.user_info
-            response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
+            response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data, verify=cert_path)
     
         elif endpoint == "create":
             if not hasattr(self.manager, 'user_info'):
@@ -146,6 +149,8 @@ class MainScreen(Screen):
             key = self.manager.user_info['key']
             encrypted_password, password_iv = CryptoHelper.encrypt(password, key)
             distro_and_version = self.distro.text.split(":")
+            if len(distro_and_version) < 2:
+                return
             distro = distro_and_version[0]
             version = distro_and_version[1]
             data = {
@@ -158,7 +163,7 @@ class MainScreen(Screen):
                 "distro": distro,
                 "version": version
             } 
-            response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
+            response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data, verify=cert_path)
     
         else:
             if not hasattr(self.manager, 'user_info'):
@@ -172,7 +177,7 @@ class MainScreen(Screen):
                     return
     
                 # Send only the raw tag as the request body
-                response = requests.post(f"{SERVER_URL}/{endpoint}", data=self.current_selected_tag)
+                response = requests.post(f"{SERVER_URL}/{endpoint}", data=self.current_selected_tag, verify=cert_path)
             else:
                 # For request or other actions that don't require container_tag
                 data = {
@@ -180,7 +185,7 @@ class MainScreen(Screen):
                     "username_iv": self.manager.user_info['username_iv'],
                     "key": self.manager.user_info['key'],
                 }
-                response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data)
+                response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data, verify=cert_path)
     
         # Ensure the response is not None before proceeding
         if response is not None:
@@ -190,16 +195,18 @@ class MainScreen(Screen):
                 # For 'request' endpoint, handle container list response
                 if endpoint == "request":
                     try:
-                        containers = json.loads(response.text)
+                        self.containers = json.loads(response.text)
                         if self.manager.current == "manage":
                             manage_screen = self.manager.get_screen("manage")
-                            manage_screen.update_container_list(containers)
+                            manage_screen.update_container_list(self.containers)
+                            
                     except json.JSONDecodeError:
                         if self.manager.current == "manage":
                             manage_screen = self.manager.get_screen("manage")
                             manage_screen.container_list.clear_widgets()
                             manage_screen.container_list.add_widget(MDLabel(text="Failed to decode container list", theme_text_color="Error", halign='center'))
     
+                self.result_label.text = ""
             except requests.exceptions.RequestException as e:
                 self.result_label.text = f"Error: {e}"
     
@@ -209,6 +216,7 @@ class MainScreen(Screen):
 
 class ContainerListItem(MDBoxLayout):
     tag = StringProperty()
+    actualTag = StringProperty()
     port = StringProperty()
     status = StringProperty()
     distro = StringProperty()
@@ -316,7 +324,16 @@ class ManageScreen(Screen):
         )
         self.container_list.add_widget(placeholder)
         for container in containers:
-            item = ContainerListItem(tag=container['tag'], port=container['serverport'], distro=container['distro'], version=container['version'],  status=container['vmstatus'])
+            tmp = container['tag']
+            tag_split = tmp.split("-")
+            tag_split = tag_split[:-1]
+            containerLabel = ""
+            for itm in tag_split:
+                containerLabel += itm
+                containerLabel += '-'
+            containerLabel = containerLabel[:-1]
+            print(containerLabel)
+            item = ContainerListItem(tag=containerLabel, port=container['serverport'], distro=container['distro'], version=container['version'],  status=container['vmstatus'], actualTag = tmp)
             self.container_list.add_widget(item)
             self.selected_containers[container['tag']] = item
 
@@ -328,7 +345,7 @@ class ManageScreen(Screen):
 
         main_screen = self.manager.get_screen("main")
         for item in selected_items:
-            main_screen.current_selected_tag = item.tag
+            main_screen.current_selected_tag = item.actualTag
             main_screen.send_request(action)
         main_screen.current_selected_tag = None # Reset selection after action
         self.list_containers_and_display_json(None)
@@ -344,4 +361,11 @@ class ContainerApp(MDApp):
         return sm
 
 if __name__ == "__main__":
+    if getattr(sys, 'frozen', False):  # PyInstaller나 Buildozer로 빌드된 경우
+        from android.storage import app_storage_path
+        import shutil
+        app_path = app_storage_path()
+        cert_dst = os.path.join(app_path, 'certs', 'ca.crt')
+    else:
+        cert_path = './certs/server.crt'  # 개발 중 경로
     ContainerApp().run()

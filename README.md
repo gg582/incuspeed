@@ -93,6 +93,13 @@ make
 ## 📜 TODO
 - Support for other distributions
 - Incus integration for RestAPI /create path
+## 📜 NOTE
+- Default domain is hobbies.yoonjin2.kr.
+- If you are installing this, please change URL prefix.
+- You can find prefixes by this command.
+```bash
+grep yoonjin2 $(find . -type f)
+```
  
 ---
 

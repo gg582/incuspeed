@@ -16,8 +16,7 @@ else
 		sudo -s
 fi
 sleep 1
-cd ..
-cd linuxVirtualization
+make
 apt-get update -y
 apt remove ufw -y
 apt-get install -y gnupg curl firewalld
@@ -106,6 +105,13 @@ firewall-cmd --zone=trusted --change-interface=incusbr0 --permanent
 apt install iptables-persistent -y
 iptables -I FORWARD 1 -i incusbr0 -j ACCEPT
 iptables -I FORWARD 1 -o incusbr0 -j ACCEPT
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P FORWARD ACCEPT
+sudo iptables -P OUTPUT ACCEPT
+sudo iptables -A INPUT -p tcp --dport 27020:60000 -j ACCEPT
+sudo iptables -A OUTPUT -p tcp --dport 27020:60000 -j ACCEPT
+sudo iptables -A OUTPUT -p tcp --dport 27020:60000 -j ACCEPT
+sudo iptables -A OUTPUT -p udp --dport 27020:60000 -j ACCEPT
 netfilter-persistent save
 
 #ausearch -c 'nginx' --raw | audit2allow -M my-nginx
@@ -113,9 +119,8 @@ netfilter-persistent save
 ./install_svc.sh
 systemctl restart NetworkManager
 incus admin init
-incus launch images:ubuntu/$VERSION base
-incus exec base -- apt-get update
-incus exec base -- apt-get install -y openssh-server openssh-client sudo --no-install-recommends
-incus stop base
-incus publish base --alias ubuntu_2404
-incus delete base
+./utils/make_base_images.sh
+mkdir certs
+mkdir app/certs
+./utils/keygen.sh
+./u

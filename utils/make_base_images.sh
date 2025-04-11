@@ -38,19 +38,19 @@ for IMAGE in "${IMAGES[@]}"; do
 
     if incus exec "$container_name" -- grep -qi 'ubuntu\|debian\|devuan' /etc/os-release; then
         incus exec "$container_name" -- sh -c "apt-get update -y"
-        incus exec "$container_name" -- sh -c "apt-get install -y --no-install-recommends openssh-server openssh-client gnupg2"
+        incus exec "$container_name" -- sh -c "apt-get install -y --no-install-recommends openssh-server openssh-client gnupg2 sudo"
 
     elif incus exec "$container_name" -- grep -qi 'centos\|almalinux\|rocky' /etc/os-release; then
         incus exec "$container_name" -- sh -c "dnf clean all"
         incus exec "$container_name" -- sh -c "dnf update -y"
-        incus exec "$container_name" -- sh -c "dnf install -y --setopt=install_weak_deps=False gnupg2 openssh-server openssh-clients"
+        incus exec "$container_name" -- sh -c "dnf install -y --setopt=install_weak_deps=False gnupg2 openssh-server openssh-clients sudo"
         incus exec "$container_name" -- sh -c "rpm --import /etc/pki/rpm-gpg/*" || true
 
     elif incus exec "$container_name" -- grep -qi 'arch' /etc/os-release; then
         incus exec "$container_name" -- sh -c "pacman -Sy --noconfirm archlinux-keyring"
         incus exec "$container_name" -- sh -c "pacman-key --init"
         incus exec "$container_name" -- sh -c "pacman-key --populate"
-        incus exec "$container_name" -- sh -c "pacman -Syu --noconfirm openssh" || {
+        incus exec "$container_name" -- sh -c "pacman -Syu --noconfirm openssh sudo" || {
             incus exec "$container_name" -- sh -c "pacman -Syy --noconfirm"
             incus exec "$container_name" -- sh -c "pacman -S openssh --noconfirm"
         }
@@ -59,7 +59,7 @@ for IMAGE in "${IMAGES[@]}"; do
         echo "openSUSE likely has SSH preinstalled."
     elif incus exec "$container_name" -- grep -qi 'amzn' /etc/os-release; then
         incus exec "$container_name" -- sh -c "yum update -y"
-        incus exec "$container_name" -- sh -c "yum install -y openssh-server openssh-clients"
+        incus exec "$container_name" -- sh -c "yum install -y openssh-server openssh-clients sudo"
         incus exec "$container_name" -- sh -c "rpm --import /etc/pki/rpm-gpg/*" || true
 
     elif incus exec "$container_name" -- grep -qi 'slackware' /etc/os-release; then
@@ -67,7 +67,7 @@ for IMAGE in "${IMAGES[@]}"; do
         incus exec "$container_name" -- sh -c "echo DEFAULT_ANSWER=y >> /etc/slackpkg/slackpkg.conf"
         incus exec "$container_name" -- sh -c "slackpkg update"
         incus exec "$container_name" -- sh -c "slackpkg update gpg"
-        incus exec "$container_name" -- sh -c "slackpkg install openssh"
+        incus exec "$container_name" -- sh -c "slackpkg install openssh sudo"
         incus exec "$container_name" -- sh -c "sed -i '\$d' /etc/slackpkg/slackpkg.conf" # 마지막 줄 삭제 (주석 제거)
 
     else
