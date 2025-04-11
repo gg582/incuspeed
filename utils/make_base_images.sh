@@ -3,19 +3,19 @@
 set -e
 
 IMAGES=(
-    "ubuntu/24.04"
-    "ubuntu/22.04"
-    "ubuntu/20.04"
-    "debian/12"
-    "debian/11"
-    "debian/10"
-    "centos/9-Stream"
-    "almalinux/9"
-    "rockylinux/9"
-    "devuan/chimaera"
-    "devuan/daedalus"
-    "devuan/beowulf"
-    "archlinux/current"
+    #"ubuntu/24.04"
+    #"ubuntu/22.04"
+    #"ubuntu/20.04"
+    #"debian/12"
+    #"debian/11"
+    #"debian/10"
+    #"centos/9-Stream"
+    #"almalinux/9"
+    #"rockylinux/9"
+    #"devuan/chimaera"
+    #"devuan/daedalus"
+    #"devuan/beowulf"
+    #"archlinux/current"
     "slackware/current"
     "slackware/15.0"
 )
@@ -54,8 +54,6 @@ for IMAGE in "${IMAGES[@]}"; do
             incus exec "$container_name" -- sh -c "pacman -S openssh --noconfirm"
         }
 
-    elif incus exec "$container_name" -- grep -qi 'opensuse' /etc/os-release; then
-        echo "openSUSE likely has SSH preinstalled."
     elif incus exec "$container_name" -- grep -qi 'amzn' /etc/os-release; then
         incus exec "$container_name" -- sh -c "yum update -y"
         incus exec "$container_name" -- sh -c "yum install -y openssh-server openssh-clients sudo"
@@ -64,10 +62,12 @@ for IMAGE in "${IMAGES[@]}"; do
     elif incus exec "$container_name" -- grep -qi 'slackware' /etc/os-release; then
         incus exec "$container_name" -- sh -c "echo BATCH=on >> /etc/slackpkg/slackpkg.conf"
         incus exec "$container_name" -- sh -c "echo DEFAULT_ANSWER=y >> /etc/slackpkg/slackpkg.conf"
+        incus exec "$container_name" -- sh -c "slackpkg clean-cache"
         incus exec "$container_name" -- sh -c "slackpkg update"
         incus exec "$container_name" -- sh -c "slackpkg update gpg"
         incus exec "$container_name" -- sh -c "slackpkg install openssh sudo"
-        incus exec "$container_name" -- sh -c "sed -i '\$d' /etc/slackpkg/slackpkg.conf" # 마지막 줄 삭제 (주석 제거)
+        incus exec "$container_name" -- sh -c "sed -i '\$d' /etc/slackpkg/slackpkg.conf" 
+        incus exec "$container_name" -- sh -c "sed -i '\$d' /etc/slackpkg/slackpkg.conf" 
 
     else
         echo "Unknown distro in $IMAGE, skipping."

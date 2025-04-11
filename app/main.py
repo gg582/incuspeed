@@ -362,10 +362,13 @@ class ContainerApp(MDApp):
 
 if __name__ == "__main__":
     if getattr(sys, 'frozen', False):  # PyInstaller나 Buildozer로 빌드된 경우
-        from android.storage import app_storage_path
-        import shutil
-        app_path = app_storage_path()
-        cert_dst = os.path.join(app_path, 'certs', 'ca.crt')
+        from kivy.utils import platform
+        if platform == 'android':
+            from android.storage import app_storage_path
+            basedir = '/data/data/org.yoonjin67.lvirtfront/files/app/certs'
+        else:
+            import os
+            basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'certs')
     else:
         cert_path = './certs/ca.crt'  # 개발 중 경로
     ContainerApp().run()
