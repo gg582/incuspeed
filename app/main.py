@@ -367,5 +367,5 @@ if __name__ == "__main__":
         app_path = app_storage_path()
         cert_dst = os.path.join(app_path, 'certs', 'ca.crt')
     else:
-        cert_path = './certs/server.crt'  # 개발 중 경로
+        cert_path = './certs/ca.crt'  # 개발 중 경로
     ContainerApp().run()
