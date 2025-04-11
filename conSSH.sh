@@ -33,6 +33,7 @@ then
         /etc/*.d/*ssh* restart
     fi
 else
+    systemctl restart sshd
     systemctl restart ssh
 fi
 

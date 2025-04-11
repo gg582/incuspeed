@@ -12,7 +12,6 @@ IMAGES=(
     "centos/9-Stream"
     "almalinux/9"
     "rockylinux/9"
-    "opensuse/tumbleweed"
     "devuan/chimaera"
     "devuan/daedalus"
     "devuan/beowulf"
