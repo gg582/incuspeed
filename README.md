@@ -3,6 +3,24 @@
 > **A super-lightweight LXD/Incus container management GUI for Linux systems**  
 > Current Distro: **🟣 Ubuntu 24.04**
 
+##Overview
+
+### RestAPI Structure
+
+![RestAPI structure](assets/RestAPIStructure.png)
+
+This project manages LXD Containers by calling API binding from Go.
+- Basic requests are handled by RestAPI endpoint, and distinguished by container tag.
+- Three ports are allocated for each containers.
+- First port is allocated as OpenBSD Secure Shell(SSH).
+*Spare two ports are left as empty spaces; as user may use other service. (e.g: MySQL, XRDP)*
+
+### Secure Shell Reverse Proxy
+
+![Secure Shell Proxy](assets/SSHConnectionRevProxy.png)
+- Secure Shell is managed by Nginx Reverse proxy.
+- Once a container boots up, Proxy configuration file is automatically modified.
+
 ---
 
 ## 🚀 Getting Started – Server Setup
@@ -27,8 +45,8 @@
    > Be sure to modify `nginx.conf` from this repo before running the setup script.
 
 3. **After setup**
-   - Default SSH & Xrdp ports will be assigned automatically.
-   - Incus containers will be managed via a reverse-proxy (Nginx).
+   - Default SSH & Spare ports(ssh port + 1, ssh port + 2) will be assigned automatically.
+   - Incus containers' port connection will be managed via a reverse-proxy (Nginx).
 
 ---
 
