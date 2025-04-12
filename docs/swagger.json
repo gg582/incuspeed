@@ -1,0 +1,355 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Linux Virtualization API with Incus.",
+        "title": "Linux Virtualization API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:32000",
+    "basePath": "/",
+    "paths": {
+        "/create": {
+            "post": {
+                "description": "Creates a new container with the provided information.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create a new container",
+                "parameters": [
+                    {
+                        "description": "Container creation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/linux_virt_unit.ContainerInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Container Info",
+                        "schema": {
+                            "$ref": "#/definitions/linux_virt_unit.ContainerInfo"
+                        }
+                    }
+                }
+            }
+        },
+        "/delete": {
+            "post": {
+                "description": "Deletes a container with the specified tag.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete container by tag",
+                "parameters": [
+                    {
+                        "description": "Tag to delete",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/pause": {
+            "post": {
+                "description": "Pauses a container with the specified tag.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Pause container by tag",
+                "parameters": [
+                    {
+                        "description": "Tag to pause",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Registers a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "User registration request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/linux_virt_unit.UserInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User Registration Done.",
+                        "schema": {
+                            "type": "body"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/request": {
+            "post": {
+                "description": "GetContainers retrieves a list of containers for a specific user by manually scanning the collection.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get containers",
+                "parameters": [
+                    {
+                        "description": "User information",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/linux_virt_unit.UserInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Created containers list",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/linux_virt_unit.ContainerInfo"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/restart": {
+            "post": {
+                "description": "Restarts a container with the specified tag.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Restart container by tag",
+                "parameters": [
+                    {
+                        "description": "Tag to restart",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/resume": {
+            "post": {
+                "description": "Resumes a container with the specified tag.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Resume container by tag",
+                "parameters": [
+                    {
+                        "description": "Tag to resume",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/start": {
+            "post": {
+                "description": "Starts a container with the specified tag.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Start container by tag",
+                "parameters": [
+                    {
+                        "description": "Tag to start",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/stop": {
+            "post": {
+                "description": "Stops a container with the specified tag.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Stop container by tag",
+                "parameters": [
+                    {
+                        "description": "Tag to stop",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "linux_virt_unit.ContainerInfo": {
+            "type": "object",
+            "properties": {
+                "distro": {
+                    "type": "string",
+                    "example": "ubuntu"
+                },
+                "key": {
+                    "type": "string",
+                    "example": "encryptionKey"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "encryptedPW"
+                },
+                "password_iv": {
+                    "type": "string",
+                    "example": "somePasswordIV"
+                },
+                "serverip": {
+                    "type": "string",
+                    "example": "10.72.1.100"
+                },
+                "serverport": {
+                    "type": "string",
+                    "example": "27020"
+                },
+                "tag": {
+                    "type": "string",
+                    "example": "sometag"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "encryptedUser"
+                },
+                "username_iv": {
+                    "type": "string",
+                    "example": "someUsernameIV"
+                },
+                "version": {
+                    "type": "string",
+                    "example": "24.04"
+                },
+                "vmstatus": {
+                    "type": "string",
+                    "example": "running"
+                }
+            }
+        },
+        "linux_virt_unit.UserInfo": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "example": "encryptionKey"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "passwordhash"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "encryptedUser"
+                },
+                "username_iv": {
+                    "type": "string",
+                    "example": "someUsernameIV"
+                }
+            }
+        }
+    }
+}

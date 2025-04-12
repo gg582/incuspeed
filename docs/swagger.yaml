@@ -1,0 +1,236 @@
+basePath: /
+definitions:
+  linux_virt_unit.ContainerInfo:
+    properties:
+      distro:
+        example: ubuntu
+        type: string
+      key:
+        example: encryptionKey
+        type: string
+      password:
+        example: encryptedPW
+        type: string
+      password_iv:
+        example: somePasswordIV
+        type: string
+      serverip:
+        example: 10.72.1.100
+        type: string
+      serverport:
+        example: "27020"
+        type: string
+      tag:
+        example: sometag
+        type: string
+      username:
+        example: encryptedUser
+        type: string
+      username_iv:
+        example: someUsernameIV
+        type: string
+      version:
+        example: "24.04"
+        type: string
+      vmstatus:
+        example: running
+        type: string
+    type: object
+  linux_virt_unit.UserInfo:
+    properties:
+      key:
+        example: encryptionKey
+        type: string
+      password:
+        example: passwordhash
+        type: string
+      username:
+        example: encryptedUser
+        type: string
+      username_iv:
+        example: someUsernameIV
+        type: string
+    type: object
+host: localhost:32000
+info:
+  contact: {}
+  description: Linux Virtualization API with Incus.
+  title: Linux Virtualization API
+  version: "1.0"
+paths:
+  /create:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new container with the provided information.
+      parameters:
+      - description: Container creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/linux_virt_unit.ContainerInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Container Info
+          schema:
+            $ref: '#/definitions/linux_virt_unit.ContainerInfo'
+      summary: Create a new container
+  /delete:
+    post:
+      consumes:
+      - application/json
+      description: Deletes a container with the specified tag.
+      parameters:
+      - description: Tag to delete
+        in: body
+        name: request
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: Delete container by tag
+  /pause:
+    post:
+      consumes:
+      - application/json
+      description: Pauses a container with the specified tag.
+      parameters:
+      - description: Tag to pause
+        in: body
+        name: request
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: Pause container by tag
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user
+      parameters:
+      - description: User registration request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/linux_virt_unit.UserInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User Registration Done.
+          schema:
+            type: body
+        "400":
+          description: Bad Request
+      summary: Register a new user
+  /request:
+    post:
+      consumes:
+      - application/json
+      description: GetContainers retrieves a list of containers for a specific user
+        by manually scanning the collection.
+      parameters:
+      - description: User information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/linux_virt_unit.UserInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Created containers list
+          schema:
+            items:
+              $ref: '#/definitions/linux_virt_unit.ContainerInfo'
+            type: array
+        "400":
+          description: Bad Request
+      summary: Get containers
+  /restart:
+    post:
+      consumes:
+      - application/json
+      description: Restarts a container with the specified tag.
+      parameters:
+      - description: Tag to restart
+        in: body
+        name: request
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: Restart container by tag
+  /resume:
+    post:
+      consumes:
+      - application/json
+      description: Resumes a container with the specified tag.
+      parameters:
+      - description: Tag to resume
+        in: body
+        name: request
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: Resume container by tag
+  /start:
+    post:
+      consumes:
+      - application/json
+      description: Starts a container with the specified tag.
+      parameters:
+      - description: Tag to start
+        in: body
+        name: request
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: Start container by tag
+  /stop:
+    post:
+      consumes:
+      - application/json
+      description: Stops a container with the specified tag.
+      parameters:
+      - description: Tag to stop
+        in: body
+        name: request
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+      summary: Stop container by tag
+swagger: "2.0"

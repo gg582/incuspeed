@@ -79,13 +79,79 @@ make
 ## 📁 Directory Structure Overview
 
 ```text
-.
-├── main.go           # Go-based Incus management server
-├── app/               # Kivy-based GUI app (Python)
-├── nginx.conf         # Default Nginx configuration (can be replaced)
-├── initial_setup.sh   # Shell script for system setup
-├── Makefile           # Build instructions
-└── README.md          # This file
+linuxVirtualization/
+├── app
+│   ├── bin
+│   │   ├── lvirtfront-0.1-arm64-v8a_armeabi-v7a-debug.apk #app builds
+│   │   └── lvirtfront-0.1-arm64-v8a_armeabi-v7a-release.aab
+│   ├── buildozer.spec #buildozer config file
+│   ├── certs
+│   │   └── ca.crt # client cert (auto-generated)
+│   ├── icon.png
+│   ├── main.py # kivy client 
+│   ├── README.md
+│   └── requirements.txt
+├── ca.srl
+├── certs # server certs (auto-generated)
+│   ├── server.crt
+│   └── server.key
+├── conSSH.sh # ssh initialization script
+├── container
+│   └── latest_access
+├── docs # swagger docs
+│   ├── docs.go
+│   ├── swagger.json
+│   └── swagger.yaml
+├── drop_all.props # force drop all mongo props
+├── go.mod 
+├── go.sum
+├── initial_setup.sh # initial setup script
+├── install_svc.sh # install daemon service script
+├── killall.sh # force delete all informations
+├── kill_for_reload.sh 
+├── kill.sh # systemctl stop command
+├── linuxVirtualizationServer # go compiled binary
+├── linuxVirtualization.service # daemon service file
+├── linux_virt_unit
+│   ├── crypto
+│   │   └── crypto.go # encryption logics
+│   ├── go.mod
+│   ├── go.sum
+│   ├── http_request
+│   │   └── http_request.go # RestAPI Endpoints
+│   ├── incus_unit
+│   │   ├── base_images.go # auto-generated base image fingerprints
+│   │   ├── change_container_status.go # state change logic
+│   │   ├── create_containers.go # container creation logic
+│   │   ├── get_info.go # get miscellanous informations
+│   │   ├── handle_container_state_change.go #handle state change endpoints (start/stop/pause/resume/restart)
+│   │   ├── handle_user_info.go # securely handle user auth
+│   │   └── worker_pool.go # multi-processing worker pool
+│   ├── linux_virt_unit.go # shared structure definitions
+│   ├── mongo_connect
+│   │   └── mongo_connect.go # mongoDB client initialization
+│   └── README.md
+├── main.go # main function of this server
+├── Makefile
+├── mongo.props # create specified mongoDB admin user
+├── nginx.conf  # default nginx configuration (if you have pre-configured Nginx config, place here
+├── openssl.cnf # openssl configuration for self-signing
+├── README.md
+├── remove-service.sh # daemon service uninstallation
+├── server_reload.sh  # systemctl restart 
+├── server.sh # execute server as nohup
+└── utils
+    ├── keygen.sh # generate self-signed certificate
+    ├── make_base_images.sh # create base image
+    ├── make_incus_units.sh # create base_images.go
+    └── management_tools.sh # bash alias for convenient management
+```
+
+## 🧩 Architecture
+```
+[Client (KivyMD)] ⇄ [REST API (Go)] ⇄ [linux_virt_unit] ⇄ [Incus API]
+                                       ⇅
+                                   [MongoDB]
 ```
 
 ---
@@ -93,6 +159,7 @@ make
 ## 📜 TODO
 - Support for other distributions
 - Incus integration for RestAPI /create path
+
 ## 📜 NOTE
 - Default domain is hobbies.yoonjin2.kr.
 - If you are installing this, please change URL prefix.
