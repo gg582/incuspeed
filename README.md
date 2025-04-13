@@ -142,7 +142,7 @@ linuxVirtualization/
 │   │   ├── change_container_status.go # state change logic
 │   │   ├── create_containers.go # container creation logic
 │   │   ├── get_info.go # get miscellanous informations
-│   │   ├── handle_container_state_change.go #handle state change endpoints (start/stop/pause/resume/restart)
+│   │   ├── handle_container_state_change.go # handle state change endpoints
 │   │   ├── handle_user_info.go # securely handle user auth
 │   │   └── worker_pool.go # multi-processing worker pool
 │   ├── linux_virt_unit.go # shared structure definitions
