@@ -123,4 +123,3 @@ incus admin init
 mkdir certs
 mkdir app/certs
 ./utils/keygen.sh
-./u
