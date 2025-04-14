@@ -30,15 +30,6 @@ curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | \
 echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
 apt-get update -y
 apt-get  -y install mongodb-org nginx nginx-extras
-if [ ! -f "/var/lib/snapd/snap/bin" ]
-then
-    echo "PATH=$PATH":/snap/bin"" >> /etc/environment
-    source /root/.bashrc
-    systemctl enable snapd
-    systemctl start snapd
-fi
-#ausearch -c 'snap-confine- - | audit2allow -M my-snapconfine'
-#semodule -X 300 -i my-snapconfine.pp
 #cat > mongodb_cgroup_memory.te <<EOF
 #module mongodb_cgroup_memory 1.0;
 #require {
