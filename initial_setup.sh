@@ -20,7 +20,6 @@ make
 apt-get update -y
 apt remove ufw -y
 apt-get install -y gnupg curl firewalld
-vi /etc/firewalld/firewalld.conf
 firewall-cmd --reload
 firewall-cmd --zone=public --add-port=32000/tcp
 curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | \
