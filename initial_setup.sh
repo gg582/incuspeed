@@ -18,7 +18,7 @@ fi
 sleep 1
 apt-get update -y
 apt remove ufw -y
-apt-get install -y gnupg curl firewalld git make
+apt-get install -y gnupg curl firewalld git make incus
 git submodule init
 git submodule update --recursive
 firewall-cmd --reload
