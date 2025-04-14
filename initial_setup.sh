@@ -16,10 +16,9 @@ else
 		sudo -s
 fi
 sleep 1
-make
 apt-get update -y
 apt remove ufw -y
-apt-get install -y gnupg curl firewalld git
+apt-get install -y gnupg curl firewalld git make
 git submodule init
 git submodule update --recursive
 firewall-cmd --reload
@@ -108,6 +107,7 @@ netfilter-persistent save
 
 #ausearch -c 'nginx' --raw | audit2allow -M my-nginx
 #semodule -X 300 -i my-nginx.pp
+make
 ./install_svc.sh
 systemctl restart NetworkManager
 incus admin init
