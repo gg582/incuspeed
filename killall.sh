@@ -24,5 +24,3 @@ cp /usr/local/bin/linuxVirtualization/nginx.conf /etc/nginx.conf
 sudo rm -rf nohup*.out
 systemctl restart --now nginx
 cat drop_all.props | mongosh 
-echo > /usr/local/bin/linuxVirtualization/heaps
-echo > /usr/local/bin/linuxVirtualization/unheaps
