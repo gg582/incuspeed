@@ -24,6 +24,46 @@ This project manages LXD Containers by calling API binding from Go.
 ---
 
 ## 🚀 Getting Started – Server Setup
+# 📦 Container State Change API
+
+These endpoints allow changing the state of a container instance managed by the virtualization unit.
+
+## Available Endpoints
+
+| Method | Endpoint     | Description               |
+|--------|--------------|---------------------------|
+| POST   | `/start`     | Start a container         |
+| POST   | `/pause`     | Pause a running container |
+| POST   | `/resume`    | Resume a paused container |
+| POST   | `/restart`   | Restart a container       |
+
+## Request Body
+
+All endpoints require a JSON body with the container tag.
+
+```json
+{
+  "tag": "container-name"
+}
+```
+
+- `tag` (string, required): The unique identifier (name or tag) of the container you want to target.
+
+## Responses
+
+| Code | Meaning                      |
+|------|------------------------------|
+| 200  | State changed successfully   |
+| 400  | Bad request (e.g. missing tag) |
+| 500  | Internal server error        |
+
+## Example Curl
+
+```bash
+curl -X POST http://<host>:<port>/start \
+  -H "Content-Type: application/json" \
+  -d '{"tag": "my-container"}'
+```
 
 ### 📦 Installation Steps
 
