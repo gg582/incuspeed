@@ -143,7 +143,7 @@ paths:
         "400":
           description: Bad Request
       summary: Get containers
-  /changestate/{state}:
+  /{state}:
     post:
       summary: Change container state
       description: Change the state of a container by tag and action.
