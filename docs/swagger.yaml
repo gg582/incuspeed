@@ -96,24 +96,6 @@ paths:
         "400":
           description: Bad Request
       summary: Delete container by tag
-  /pause:
-    post:
-      consumes:
-      - application/json
-      description: Pauses a container with the specified tag.
-      parameters:
-      - description: Tag to pause
-        in: body
-        name: request
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Bad Request
-      summary: Pause container by tag
   /register:
     post:
       consumes:
@@ -161,78 +143,6 @@ paths:
         "400":
           description: Bad Request
       summary: Get containers
-  /restart:
-    post:
-      consumes:
-      - application/json
-      description: Restarts a container with the specified tag.
-      parameters:
-      - description: Tag to restart
-        in: body
-        name: request
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Bad Request
-      summary: Restart container by tag
-  /resume:
-    post:
-      consumes:
-      - application/json
-      description: Resumes a container with the specified tag.
-      parameters:
-      - description: Tag to resume
-        in: body
-        name: request
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Bad Request
-      summary: Resume container by tag
-  /start:
-    post:
-      consumes:
-      - application/json
-      description: Starts a container with the specified tag.
-      parameters:
-      - description: Tag to start
-        in: body
-        name: request
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Bad Request
-      summary: Start container by tag
-  /stop:
-    post:
-      consumes:
-      - application/json
-      description: Stops a container with the specified tag.
-      parameters:
-      - description: Tag to stop
-        in: body
-        name: request
-        required: true
-        schema:
-          type: string
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Bad Request
-      summary: Stop container by tag
   /changestate/{state}:
     post:
       summary: Change container state
