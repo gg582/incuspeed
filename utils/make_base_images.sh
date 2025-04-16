@@ -3,10 +3,20 @@
 set -e
 
 IMAGES=(
-#   "ubuntu/24.04"
-#   "ubuntu/22.04"
-#   "ubuntu/20.04"
-   "slackware/current"
+    "ubuntu/24.04"
+    "ubuntu/22.04"
+    "ubuntu/20.04"
+    "debian/12"
+    "debian/11"
+    "debian/10"
+    "centos/9-Stream"
+    "almalinux/9"
+    "rockylinux/9"
+    "devuan/chimaera"
+    "devuan/daedalus"
+    "devuan/beowulf"
+    "archlinux/current"
+    "slackware/current"
     "slackware/15.0"
 )
 

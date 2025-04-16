@@ -25,16 +25,21 @@ if ! test -f /usr/bin/systemctl;
 then
     if test -d /etc/rc.d;
     then
+        chmod +x /etc/rc.d/rc.sshd
         /etc/rc.d/rc.sshd restart
     elif test -d /etc/init.d;
     then
+        chmod +x /etc/rc.d/rc.sshd
         /etc/init.d/ssh restart
     else
+        chmod +x /etc/*.d/*ssh*
         /etc/*.d/*ssh* restart
     fi
 else
     systemctl restart sshd
     systemctl restart ssh
+    systemctl enable ssh
+    systemctl enable sshd
 fi
 
 echo "SSH configured."
