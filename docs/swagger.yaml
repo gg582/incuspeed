@@ -233,4 +233,27 @@ paths:
         "400":
           description: Bad Request
       summary: Stop container by tag
+  /changestate/{state}:
+    post:
+      summary: Change container state
+      description: Change the state of a container by tag and action.
+      parameters:
+        - name: state
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tag
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+
 swagger: "2.0"
