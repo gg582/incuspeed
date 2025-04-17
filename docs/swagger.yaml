@@ -1,169 +1,255 @@
-basePath: /
-definitions:
-  linux_virt_unit.ContainerInfo:
-    properties:
-      distro:
-        example: ubuntu
-        type: string
-      key:
-        example: encryptionKey
-        type: string
-      password:
-        example: encryptedPW
-        type: string
-      password_iv:
-        example: somePasswordIV
-        type: string
-      serverip:
-        example: 10.72.1.100
-        type: string
-      serverport:
-        example: "27020"
-        type: string
-      tag:
-        example: sometag
-        type: string
-      username:
-        example: encryptedUser
-        type: string
-      username_iv:
-        example: someUsernameIV
-        type: string
-      version:
-        example: "24.04"
-        type: string
-      vmstatus:
-        example: running
-        type: string
-    type: object
-  linux_virt_unit.UserInfo:
-    properties:
-      key:
-        example: encryptionKey
-        type: string
-      password:
-        example: passwordhash
-        type: string
-      username:
-        example: encryptedUser
-        type: string
-      username_iv:
-        example: someUsernameIV
-        type: string
-    type: object
-host: localhost:32000
+swagger: "2.0"
 info:
+  description: "Linux Virtualization API with Incus."
+  title: "Linux Virtualization API"
   contact: {}
-  description: Linux Virtualization API with Incus.
-  title: Linux Virtualization API
   version: "1.0"
+host: "localhost:32000"
+basePath: "/"
 paths:
   /create:
     post:
+      description: "Creates a new container with the provided information."
       consumes:
-      - application/json
-      description: Creates a new container with the provided information.
-      parameters:
-      - description: Container creation request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/linux_virt_unit.ContainerInfo'
+        - "application/json"
       produces:
-      - application/json
+        - "application/json"
+      summary: "Create a new container"
+      parameters:
+        - description: "Container creation request"
+          name: "request"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/linux_virt_unit.ContainerInfo"
       responses:
         "200":
-          description: Container Info
+          description: "Container Info"
           schema:
-            $ref: '#/definitions/linux_virt_unit.ContainerInfo'
-      summary: Create a new container
+            $ref: "#/definitions/linux_virt_unit.ContainerInfo"
   /delete:
     post:
+      description: "Deletes a container with the specified tag."
       consumes:
-      - application/json
-      description: Deletes a container with the specified tag.
-      parameters:
-      - description: Tag to delete
-        in: body
-        name: request
-        required: true
-        schema:
-          type: string
+        - "application/json"
       produces:
-      - application/json
+        - "application/json"
+      summary: "Delete container by tag"
+      parameters:
+        - description: "Tag to delete"
+          name: "request"
+          in: "body"
+          required: true
+          schema:
+            type: "string"
       responses:
         "400":
-          description: Bad Request
-      summary: Delete container by tag
+          description: "Bad Request"
   /register:
     post:
+      description: "Registers a new user"
       consumes:
-      - application/json
-      description: Registers a new user
-      parameters:
-      - description: User registration request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/linux_virt_unit.UserInfo'
+        - "application/json"
       produces:
-      - application/json
+        - "application/json"
+      summary: "Register a new user"
+      parameters:
+        - description: "User registration request"
+          name: "request"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/linux_virt_unit.UserInfo"
       responses:
         "200":
-          description: User Registration Done.
+          description: "User Registration Done."
           schema:
-            type: body
+            type: "string"
         "400":
-          description: Bad Request
-      summary: Register a new user
+          description: "Bad Request"
   /request:
     post:
+      description: "GetContainers retrieves a list of containers for a specific user by manually scanning the collection."
       consumes:
-      - application/json
-      description: GetContainers retrieves a list of containers for a specific user
-        by manually scanning the collection.
-      parameters:
-      - description: User information
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/linux_virt_unit.UserInfo'
+        - "application/json"
       produces:
-      - application/json
+        - "application/json"
+      summary: "Get containers"
+      parameters:
+        - description: "User information"
+          name: "request"
+          in: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/linux_virt_unit.UserInfo"
       responses:
         "200":
-          description: Created containers list
+          description: "Created containers list"
           schema:
+            type: "array"
             items:
-              $ref: '#/definitions/linux_virt_unit.ContainerInfo'
-            type: array
+              $ref: "#/definitions/linux_virt_unit.ContainerInfo"
         "400":
-          description: Bad Request
-      summary: Get containers
-  /{state}:
+          description: "Bad Request"
+  /start:
     post:
-      summary: Change container state
-      description: Change the state of a container by tag and action.
+      description: "Start a container with the specified tag."
+      consumes:
+        - "application/json"
       parameters:
-        - name: state
-          in: path
+        - name: "tag"
+          in: "body"
           required: true
+          description: "The tag of the container to start"
           schema:
-            type: string
-        - name: tag
-          in: body
-          required: true
-          schema:
-            type: string
+            type: "string"
       responses:
-        '200':
-          description: OK
-        '400':
-          description: Bad request
-        '500':
-          description: Internal server error
-
-swagger: "2.0"
+        "200":
+          description: "OK with log message"
+          schema:
+            type: "string"
+        "400":
+          description: "Bad request"
+        "500":
+          description: "Internal server error"
+      summary: "Start container"
+  /stop:
+    post:
+      description: "Stop a container with the specified tag."
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "tag"
+          in: "body"
+          required: true
+          description: "The tag of the container to stop"
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK with log message"
+          schema:
+            type: "string"
+        "400":
+          description: "Bad request"
+        "500":
+          description: "Internal server error"
+      summary: "Stop container"
+  /pause:
+    post:
+      description: "Pause a container with the specified tag."
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "tag"
+          in: "body"
+          required: true
+          description: "The tag of the container to pause"
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK with log message"
+          schema:
+            type: "string"
+        "400":
+          description: "Bad request"
+        "500":
+          description: "Internal server error"
+      summary: "Pause container"
+  /restart:
+    post:
+      description: "Restart a container with the specified tag."
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "tag"
+          in: "body"
+          required: true
+          description: "The tag of the container to restart"
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK with log message"
+          schema:
+            type: "string"
+        "400":
+          description: "Bad request"
+        "500":
+          description: "Internal server error"
+      summary: "Restart container"
+  /resume:
+    post:
+      description: "Resume a paused container with the specified tag."
+      consumes:
+        - "application/json"
+      parameters:
+        - name: "tag"
+          in: "body"
+          required: true
+          description: "The tag of the container to resume"
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK with log message"
+          schema:
+            type: "string"
+        "400":
+          description: "Bad request"
+        "500":
+          description: "Internal server error"
+      summary: "Resume container"
+definitions:
+  linux_virt_unit.ContainerInfo:
+    type: "object"
+    properties:
+      distro:
+        type: "string"
+        example: "ubuntu"
+      key:
+        type: "string"
+        example: "encryptionKey"
+      password:
+        type: "string"
+        example: "encryptedPW"
+      password_iv:
+        type: "string"
+        example: "somePasswordIV"
+      serverip:
+        type: "string"
+        example: "10.72.1.100"
+      serverport:
+        type: "string"
+        example: "27020"
+      tag:
+        type: "string"
+        example: "sometag"
+      username:
+        type: "string"
+        example: "encryptedUser"
+      username_iv:
+        type: "string"
+        example: "someUsernameIV"
+      version:
+        type: "string"
+        example: "24.04"
+      vmstatus:
+        type: "string"
+        example: "running"
+  linux_virt_unit.UserInfo:
+    type: "object"
+    properties:
+      key:
+        type: "string"
+        example: "encryptionKey"
+      password:
+        type: "string"
+        example: "passwordhash"
+      username:
+        type: "string"
+        example: "encryptedUser"
+      username_iv:
+        type: "string"
+        example: "someUsernameIV"
