@@ -28,8 +28,10 @@ This project manages LXD Containers by calling API binding from Go.
 
 These endpoints allow changing the state of a container instance managed by the virtualization unit.
 
-## Available Endpoints
-
+## Available Endpoints for Status Change
+Endpoints other than status change(e.g: /delete, /create, /request) are described in Swagger docs.
+Please see https://yourserverdomain:32000/swagger/index.html
+"
 | Method | Endpoint     | Description               |
 |--------|--------------|---------------------------|
 | POST   | `/start`     | Start a container         |
