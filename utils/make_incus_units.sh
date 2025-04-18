@@ -1,6 +1,6 @@
 #!/bin/bash
 
-incus image list --format csv | tail -n +1 | awk -F',' '{alias=$1; fingerprint=$2; if (alias != "") printf "\"%s\": \"%s\",\n", alias, fingerprint}' > temp_map.txt
+incus image list --format csv | tail -n +1 | awk -F',' '{alias=$1; fingerprint=$2; if (alias != "") printf "\ \ \ \ \"%s\": \"%s\",\n", alias, fingerprint}' > temp_map.txt
 
 echo "package incus_unit
 
