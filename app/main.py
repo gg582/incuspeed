@@ -1,4 +1,3 @@
-import bcrypt
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -13,13 +12,18 @@ from kivy.properties import ObjectProperty, StringProperty
 from kivy.metrics import dp
 from kivy.utils import platform
 from kivy.core.window import Window
+
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+
+import sys
+import bcrypt
 import requests
 import json
 import base64
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
-import sys
 import os
+import re
+import time
 
 SERVER_URL = "https://hobbies.yoonjin2.kr:32000"
 cert_path = ""
@@ -128,6 +132,9 @@ class MainScreen(Screen):
             "key": key,
         }
         self.manager.user_info = data
+        self.send_request("request")
+        manage_screen = self.manager.get_screen("manage")
+        manage_screen.update_container_list(self.containers)
 
 
     def send_request(self, endpoint):
@@ -148,18 +155,34 @@ class MainScreen(Screen):
             password = self.password_input.text
             key = self.manager.user_info['key']
             encrypted_password, password_iv = CryptoHelper.encrypt(password, key)
-            distro_and_version = self.distro.text.split(":")
+            distroinfo = ""
+            if re.match(r'[a-z0-9:.]+$:', self.distro.text):
+                distroinfo = self.distro.text
+            else:
+                distroinfo = ''.join(filter(lambda x: re.match(r'[a-z0-9:.]', x),self.distro.text)) 
+            distro_and_version = distroinfo.split(":")
+            self.distro.text = distroinfo
             if len(distro_and_version) < 2:
                 return
             distro = distro_and_version[0]
             version = distro_and_version[1]
+            modifiedformoftag = ""
+            if re.match(r'[a-zA-Z0-9-]+$', self.container_tag.text):
+                modifiedformoftag = self.container_tag.text
+            else:
+                for char in self.container_tag.text:
+                    if re.match(r'[a-zA-Z0-9-]+$', char):
+                        modifiedformoftag += char
+                    else:
+                        modifiedformoftag += "."
+            self.container_tag.text = modifiedformoftag
             data = {
                 "username": self.manager.user_info['username'],
                 "username_iv": self.manager.user_info['username_iv'],
                 "password": encrypted_password,
                 "password_iv": password_iv,
                 "key": self.manager.user_info['key'],
-                "tag": self.container_tag.text,
+                "tag": modifiedformoftag,
                 "distro": distro,
                 "version": version
             } 
@@ -243,15 +266,15 @@ class ContainerListItem(MDBoxLayout):
         self.add_widget(self.text_container)
 
     def on_tag(self, instance, value):
-        if hasattr(self, 'tag_label'): # 속성이 생성되었는지 확인
+        if hasattr(self, 'tag_label'): 
             self.tag_label.text = f"Tag: {value}"
 
     def on_port(self, instance, value):
-        if hasattr(self, 'port_status_label'): # 속성이 생성되었는지 확인
+        if hasattr(self, 'port_status_label'): 
             self.port_status_label.text = f"Port: {value}, Status: {self.status.capitalize()}"
 
     def on_status(self, instance, value):
-        if hasattr(self, 'port_status_label'): # 속성이 생성되었는지 확인
+        if hasattr(self, 'port_status_label'): 
             self.port_status_label.text = f"Port: {self.port}, Status: {value.capitalize()}"
 
     def on_checkbox_toggle(self, checkbox):
@@ -263,23 +286,23 @@ class ManageScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.layout = MDBoxLayout(orientation='vertical', padding=dp(8), spacing=dp(4), size_hint=(1, 1)) # layout 간격 및 padding 줄임
+        self.layout = MDBoxLayout(orientation='vertical', padding=dp(8), spacing=dp(4), size_hint=(1, 1)) 
 
-        title_layout = MDBoxLayout(orientation='horizontal', size_hint_y=None, padding=(dp(4), 0)) # title padding 줄임
+        title_layout = MDBoxLayout(orientation='horizontal', size_hint_y=None, padding=(dp(4), 0)) 
         title_label = MDLabel(text="Container Management", halign='center', theme_text_color="Primary", font_style="H6")
         title_layout.add_widget(title_label)
         self.layout.add_widget(title_layout)
 
 
         self.scroll = MDScrollView()
-        self.container_list = MDList(spacing=dp(24), padding=dp(24), size_hint_y=None) # MDList 간격 줄임
+        self.container_list = MDList(spacing=dp(24), padding=dp(24), size_hint_y=None) 
         self.container_list.bind(minimum_height=self.container_list.setter('height'))
         self.scroll.add_widget(self.container_list)
         self.layout.add_widget(self.scroll)
 
-        button_layout_bottom = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) # 버튼 레이아웃 간격 및 padding 줄임
-        button_layout_bottom_second_line = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) # 버튼 레이아웃 간격 및 padding 줄임
-        button_layout_bottom_third_line = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) # 버튼 레이아웃 간격 및 padding 줄임
+        button_layout_bottom = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) 
+        button_layout_bottom_second_line = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) 
+        button_layout_bottom_third_line = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) 
         self.start_button = MDRaisedButton(text="Start", on_release=lambda x: self.manage_container("start"), size_hint_x=0.2)
         self.stop_button = MDRaisedButton(text="Stop", on_release=lambda x: self.manage_container("stop"), size_hint_x=0.2)
         self.pause_button = MDRaisedButton(text="Pause", on_release=lambda x: self.manage_container("pause"), size_hint_x=0.2)
@@ -310,7 +333,6 @@ class ManageScreen(Screen):
         if not hasattr(self.manager, 'user_info'):
             self.feedback_label.text = "User information not found. Please log in again."
             return
-        self.manager.get_screen("main").send_request("request")
 
     def update_container_list(self, containers):
         self.container_list.clear_widgets()
@@ -346,9 +368,22 @@ class ManageScreen(Screen):
         main_screen = self.manager.get_screen("main")
         for item in selected_items:
             main_screen.current_selected_tag = item.actualTag
-            main_screen.send_request(action)
+        self.manager.get_screen("main").send_request(action)
         main_screen.current_selected_tag = None # Reset selection after action
         self.list_containers_and_display_json(None)
+        self.manager.get_screen("main").send_request("request")
+        main_screen = self.manager.get_screen("main")
+        prev_list = current_list = main_screen.containers
+        manage_screen = self.manager.get_screen("manage")
+
+        start = time.time()
+        while prev_list == current_list:
+            self.manager.get_screen("main").send_request("request")
+            current_list = self.manager.get_screen("main").containers
+            end = time.time()
+            if end-start > 1:
+                break
+        manage_screen.update_container_list(current_list)
 
 class ContainerApp(MDApp):
     def build(self):
@@ -361,7 +396,7 @@ class ContainerApp(MDApp):
         return sm
 
 if __name__ == "__main__":
-    if getattr(sys, 'frozen', False):  # PyInstaller나 Buildozer로 빌드된 경우
+    if getattr(sys, 'frozen', False):  # For actual apk
         from kivy.utils import platform
         if platform == 'android':
             from android.storage import app_storage_path
@@ -370,5 +405,5 @@ if __name__ == "__main__":
             import os
             basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'certs')
     else:
-        cert_path = './certs/ca.crt'  # 개발 중 경로
+        cert_path = './certs/ca.crt'  # for development or pc
     ContainerApp().run()
