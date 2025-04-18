@@ -1,4 +1,3 @@
-import bcrypt
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -13,13 +12,18 @@ from kivy.properties import ObjectProperty, StringProperty
 from kivy.metrics import dp
 from kivy.utils import platform
 from kivy.core.window import Window
+
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+
+import sys
+import bcrypt
 import requests
 import json
 import base64
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
-import sys
 import os
+import re
+import time
 
 SERVER_URL = "https://hobbies.yoonjin2.kr:32000"
 cert_path = ""
@@ -128,6 +132,9 @@ class MainScreen(Screen):
             "key": key,
         }
         self.manager.user_info = data
+        self.send_request("request")
+        manage_screen = self.manager.get_screen("manage")
+        manage_screen.update_container_list(self.containers)
 
 
     def send_request(self, endpoint):
@@ -148,18 +155,34 @@ class MainScreen(Screen):
             password = self.password_input.text
             key = self.manager.user_info['key']
             encrypted_password, password_iv = CryptoHelper.encrypt(password, key)
-            distro_and_version = self.distro.text.split(":")
+            distroinfo = ""
+            if re.match(r'[a-z0-9:.]+$:', self.distro.text):
+                distroinfo = self.distro.text
+            else:
+                distroinfo = ''.join(filter(lambda x: re.match(r'[a-z0-9:.]', x),self.distro.text)) 
+            distro_and_version = distroinfo.split(":")
+            self.distro.text = distroinfo
             if len(distro_and_version) < 2:
                 return
             distro = distro_and_version[0]
             version = distro_and_version[1]
+            modifiedformoftag = ""
+            if re.match(r'[a-zA-Z0-9-]+$', self.container_tag.text):
+                modifiedformoftag = self.container_tag.text
+            else:
+                for char in self.container_tag.text:
+                    if re.match(r'[a-zA-Z0-9-]+$', char):
+                        modifiedformoftag += char
+                    else:
+                        modifiedformoftag += "."
+            self.container_tag.text = modifiedformoftag
             data = {
                 "username": self.manager.user_info['username'],
                 "username_iv": self.manager.user_info['username_iv'],
                 "password": encrypted_password,
                 "password_iv": password_iv,
                 "key": self.manager.user_info['key'],
-                "tag": self.container_tag.text,
+                "tag": modifiedformoftag,
                 "distro": distro,
                 "version": version
             } 
@@ -310,7 +333,6 @@ class ManageScreen(Screen):
         if not hasattr(self.manager, 'user_info'):
             self.feedback_label.text = "User information not found. Please log in again."
             return
-        self.manager.get_screen("main").send_request("request")
 
     def update_container_list(self, containers):
         self.container_list.clear_widgets()
@@ -346,9 +368,22 @@ class ManageScreen(Screen):
         main_screen = self.manager.get_screen("main")
         for item in selected_items:
             main_screen.current_selected_tag = item.actualTag
-            main_screen.send_request(action)
+        self.manager.get_screen("main").send_request(action)
         main_screen.current_selected_tag = None # Reset selection after action
         self.list_containers_and_display_json(None)
+        self.manager.get_screen("main").send_request("request")
+        main_screen = self.manager.get_screen("main")
+        prev_list = current_list = main_screen.containers
+        manage_screen = self.manager.get_screen("manage")
+
+        start = time.time()
+        while prev_list == current_list:
+            self.manager.get_screen("main").send_request("request")
+            current_list = self.manager.get_screen("main").containers
+            end = time.time()
+            if end-start > 1:
+                break
+        manage_screen.update_container_list(current_list)
 
 class ContainerApp(MDApp):
     def build(self):
