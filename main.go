@@ -18,7 +18,7 @@ import (
 func main() {
     incus_unit.InitWorkQueue()
     var err error
-    incus_unit.WorkQueue.Start(5)
+    incus_unit.WorkQueue.Start(24)
     defer incus_unit.WorkQueue.Stop()
     db.InitMongoDB()
     defer db.CloseMongoDB()

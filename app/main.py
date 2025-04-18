@@ -300,9 +300,9 @@ class ManageScreen(Screen):
         self.scroll.add_widget(self.container_list)
         self.layout.add_widget(self.scroll)
 
-        button_layout_bottom = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) 
-        button_layout_bottom_second_line = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) 
-        button_layout_bottom_third_line = MDBoxLayout(orientation='horizontal', spacing=dp(3), size_hint_y=None, padding=(dp(2), 0)) 
+        button_layout_bottom = MDBoxLayout(orientation='horizontal', spacing=dp(16), size_hint_y=0.1, padding=(dp(8), 0)) 
+        button_layout_bottom_second_line = MDBoxLayout(orientation='horizontal', spacing=dp(16), size_hint_y=0.1, padding=(dp(8), 0)) 
+        button_layout_bottom_third_line = MDBoxLayout(orientation='horizontal', spacing=dp(16), size_hint_y=0.1, padding=(dp(8), 0)) 
         self.start_button = MDRaisedButton(text="Start", on_release=lambda x: self.manage_container("start"), size_hint_x=0.2)
         self.stop_button = MDRaisedButton(text="Stop", on_release=lambda x: self.manage_container("stop"), size_hint_x=0.2)
         self.pause_button = MDRaisedButton(text="Pause", on_release=lambda x: self.manage_container("pause"), size_hint_x=0.2)
@@ -376,14 +376,14 @@ class ManageScreen(Screen):
             prev_list = current_list = main_screen.containers
             manage_screen = self.manager.get_screen("manage")
 
-        start = time.time()
-        while prev_list == current_list:
-            self.manager.get_screen("main").send_request("request")
-            current_list = self.manager.get_screen("main").containers
-            end = time.time()
-            if end-start > 1:
-                break
-        manage_screen.update_container_list(current_list)
+            start = time.time()
+            while prev_list == current_list:
+                self.manager.get_screen("main").send_request("request")
+                current_list = self.manager.get_screen("main").containers
+                end = time.time()
+                if end-start > 1:
+                    break
+            manage_screen.update_container_list(current_list)
 
 class ContainerApp(MDApp):
     def build(self):
