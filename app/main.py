@@ -368,13 +368,13 @@ class ManageScreen(Screen):
         main_screen = self.manager.get_screen("main")
         for item in selected_items:
             main_screen.current_selected_tag = item.actualTag
-        self.manager.get_screen("main").send_request(action)
-        main_screen.current_selected_tag = None # Reset selection after action
-        self.list_containers_and_display_json(None)
-        self.manager.get_screen("main").send_request("request")
-        main_screen = self.manager.get_screen("main")
-        prev_list = current_list = main_screen.containers
-        manage_screen = self.manager.get_screen("manage")
+            self.manager.get_screen("main").send_request(action)
+            main_screen.current_selected_tag = None # Reset selection after action
+            self.list_containers_and_display_json(None)
+            self.manager.get_screen("main").send_request("request")
+            main_screen = self.manager.get_screen("main")
+            prev_list = current_list = main_screen.containers
+            manage_screen = self.manager.get_screen("manage")
 
         start = time.time()
         while prev_list == current_list:
