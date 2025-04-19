@@ -15,16 +15,16 @@ import (
 // @BasePath /
 
 func main() {
-	incus_unit.InitWorkQueue()
-	var err error
-	incus_unit.WorkQueue.Start(24)
-	defer incus_unit.WorkQueue.Stop()
-	db.InitMongoDB()
-	defer db.CloseMongoDB()
-	incus_unit.IncusCli, err = client.ConnectIncusUnix("", nil)
-	if err != nil {
-		log.Fatalf("Failed to connect to Incus: %v", err)
-	}
+    incus_unit.InitWorkQueue()
+    var err error
+    incus_unit.WorkQueue.Start(24)
+    defer incus_unit.WorkQueue.Stop()
+    db.InitMongoDB()
+    defer db.CloseMongoDB()
+    incus_unit.IncusCli, err = client.ConnectIncusUnix("", nil)
+    if err != nil {
+            log.Fatalf("Failed to connect to Incus: %v", err)
+    }
 
 	http_request.InitHttpRequest()
 
