@@ -77,6 +77,7 @@ for IMAGE in "${IMAGES[@]}"; do
     fi
 
     incus file push -r /usr/local/bin/linuxVirtualization/conSSH.sh "$container_name"/
+    incus file push -r /usr/local/bin/linuxVirtualization/tools/manage_ssh "$container_name"/usr/bin/
     echo "Publishing $container_name as image with alias $ALIAS..."
     incus stop "$container_name" --force
     incus publish "$container_name" --alias "$ALIAS" --public
