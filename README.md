@@ -41,12 +41,10 @@ Please see https://yourserverdomain:32000/swagger/index.html
 
 ## Request Body
 
-All endpoints require a JSON body with the container tag.
+All endpoints require a plain text` body with the container tag.
 
-```json
-{
-  "tag": "container-name"
-}
+```text
+  container-name
 ```
 
 - `tag` (string, required): The unique identifier (name or tag) of the container you want to target.
