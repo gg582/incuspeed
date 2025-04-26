@@ -5,6 +5,21 @@
 
 ##Overview
 
+### Purpose of the Project
+Incus is a strong manager for system containers and VMs. However, this is basically TUI app and every tasks should be interacted by shell.
+Then, we can assume a situation:
+    A. The Developer wants to generate some clean-build environment for testing web apps.
+    B. The Developer is on a subway as he/she is out for business.
+    C. The task is not too complex to use some miscellanous tools.
+Now, it is almost impossible to prepare some build enviroment on a subway.
+The developer have no place to lay his laptop.
+But, if the developer has some management app for Incus Cluster,  he/she can easily setup this basic environment.
+I wanted to manage Incus containers easily, and I can get new Linux Containers on a subway.
+And, after I arrived to a college, I could easily test a shell scripts of a project.
+
+Abstract agenda of this project is, to make incus easily accessible to non-developers.
+
+
 ### RestAPI Structure
 
 ![RestAPI structure](assets/RestAPIStructure.png)
