@@ -1,2 +1,2 @@
 #!/bin/bash
-nohup /usr/local/bin/linuxVirtualization/linuxVirtualizationServer &
+/usr/local/bin/linuxVirtualization/linuxVirtualizationServer&
