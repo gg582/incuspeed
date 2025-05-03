@@ -76,8 +76,7 @@ All endpoints require a plain text` body with the container tag.
 
 ```bash
 curl -X POST http://<host>:<port>/start \
-  -H "Content-Type: application/json" \
-  -d '{"tag": "my-container"}'
+  -d 'my-container'
 ```
 
 ### 📦 Installation Steps
