@@ -1,0 +1,4 @@
+v0.2.2-RELEASE - first working prototype
+v0.2.2a - bugfix of v0.2.2a
+v0.2.3-RELEASE - partially supports goroutine based multi-tasking
+v0.2.4-RELEASE - goroutine calls are (almost) fully supported
