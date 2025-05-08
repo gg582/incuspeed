@@ -1,11 +1,15 @@
 package main
 
 import (
+	"log"
+	"os"
+    "io"
+
 	client "github.com/lxc/incus/client"
 	http_request "github.com/yoonjin67/linux_virt_unit/http_request"
 	incus_unit "github.com/yoonjin67/linux_virt_unit/incus_unit"
+    . "github.com/yoonjin67/linux_virt_unit"
 	db "github.com/yoonjin67/linux_virt_unit/mongo_connect"
-	"log"
 )
 
 // @title Linux Virtualization API
@@ -17,7 +21,7 @@ import (
 func main() {
     incus_unit.InitWorkQueue()
     var err error
-    incus_unit.WorkQueue.Start(24)
+    incus_unit.WorkQueue.Start(48)
     defer incus_unit.WorkQueue.Stop()
     db.InitMongoDB()
     defer db.CloseMongoDB()
@@ -25,7 +29,28 @@ func main() {
     if err != nil {
             log.Fatalf("Failed to connect to Incus: %v", err)
     }
+    copyFile(LINUX_VIRT_PATH+"/backup.conf", NGINX_LOCATION)
 
 	http_request.InitHttpRequest()
 
+}
+
+func copyFile(src string, dst string) {
+    srcFile, err := os.Open(src)
+    if err != nil {
+        log.Println("Failed to open backup source: %v", err)
+        defer srcFile.Close()
+    }
+
+    dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+    if err != nil {
+        log.Println("[FATAL]: Nginx config not found")
+        log.Fatal(err)
+        defer dstFile.Close()
+    }
+
+    _, err = io.Copy(dstFile, srcFile)
+    if err != nil {
+        log.Println("Failed to copy from backup.conf")
+    }
 }

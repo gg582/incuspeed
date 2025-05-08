@@ -20,7 +20,7 @@ else
     fi
 fi
 cp /usr/local/bin/linuxVirtualization/nginx.conf /etc/nginx/nginx.conf
-cp /usr/local/bin/linuxVirtualization/nginx.conf /etc/nginx.conf
+cp /usr/local/bin/linuxVirtualization/nginx.conf /usr/local/bin/linuxVirtualization/backup.conf
 sudo rm -rf nohup*.out
 systemctl restart --now nginx
 cat drop_all.props | mongosh 
