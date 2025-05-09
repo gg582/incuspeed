@@ -1,3 +1,2 @@
 #!/bin/bash
-/usr/local/bin/linuxVirtualization/linuxVirtualizationServer&
-nginx -s reload
+nohup /usr/local/bin/linuxVirtualization/linuxVirtualizationServer&

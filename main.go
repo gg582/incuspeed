@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+    "os/exec"
     "io"
 
 	client "github.com/lxc/incus/client"
@@ -38,7 +39,7 @@ func main() {
 func copyFile(src string, dst string) {
     srcFile, err := os.Open(src)
     if err != nil {
-        log.Println("Failed to open backup source: %v", err)
+        log.Printf("Failed to open backup source: %v", err)
         defer srcFile.Close()
     }
 
@@ -52,5 +53,9 @@ func copyFile(src string, dst string) {
     _, err = io.Copy(dstFile, srcFile)
     if err != nil {
         log.Println("Failed to copy from backup.conf")
+    }
+
+    if exec.Command("nginx", "-s", "reload").Run() != nil {
+        log.Println("failed to reload nginx")
     }
 }
