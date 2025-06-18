@@ -3,4 +3,7 @@ kivymd
 pycryptodome
 bcrypt
 requests
+buildozer
+setuptools
+cython
 

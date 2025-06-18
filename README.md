@@ -70,6 +70,7 @@ curl -X POST http://<host>:<port>/start   -d 'my-container'
 ```
 
 ---
+## Setting Up an initial Master Node
 
 ### 📦 Installation Steps
 
@@ -93,7 +94,30 @@ curl -X POST http://<host>:<port>/start   -d 'my-container'
 3. **After setup**
    - Default SSH & Spare ports will be assigned automatically.
    - Incus containers' port connection will be managed via a reverse-proxy (Nginx).
+### 🔐Generating Certificates
+1. **Load Management Tools**
+    ```bash
+    source ./utils/management_tools.sh
+    ```
+2. **Run Keygen***
+    ```bash
+    source ./utils/keygen.sh
+    ```
+This certification will be included when building mobile apps.
+### 📱Building Your App
+1. **Install OpenJDK**
+2. **Install Required Packages**
+    ```bash
+    pip3 install -r requirements.txt
+    ```
+3. **Install extra dependencies**
+    libffi-dev is required for Cythonize
+4. **Build your app**
+    There are long integer bugs in pyjnius. Change long into int.
 
+
+
+### Installation Steps
 ---
 
 ## 🖥 GUI Application Usage
@@ -116,6 +140,9 @@ curl -X POST http://<host>:<port>/start   -d 'my-container'
      > ⚠ Change this password immediately after your first login!
 
 ---
+
+## 💡 How to Use
+Go to your application, and manage your container by buttons and entries.
 
 ## 🧠 Back-End Information
 
