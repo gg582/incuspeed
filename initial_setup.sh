@@ -28,7 +28,7 @@ curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | \
    --dearmor
 echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
 apt-get update -y
-apt-get  -y install mongodb-org nginx nginx-extras
+apt-get  -y install mongodb-org nginx nginx-extras golang
 #cat > mongodb_cgroup_memory.te <<EOF
 #module mongodb_cgroup_memory 1.0;
 #require {
