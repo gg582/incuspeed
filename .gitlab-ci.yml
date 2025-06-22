@@ -1,0 +1,17 @@
+stages:
+  - build
+  - test
+image: ubuntu:24.04
+build_source:
+  stage: build
+  script:
+    - apt-get install -y git
+    - git clone https://gitlab.yoonjin2.kr/yjlee/linuxVirtualization
+    - cd linuxVirtualization
+    - git submodule init
+    - git submodule update --recursive # to handle further changes
+    - bash ./initial_setup.sh
+test_execution:
+  stage: test
+    - bash ./linuxVirtualizationServer
+
