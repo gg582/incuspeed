@@ -5,6 +5,7 @@ image: ubuntu:24.04
 build_source:
   stage: build
   script:
+    - apt-get update
     - apt-get install -y git
     - git clone https://gitlab.yoonjin2.kr/yjlee/linuxVirtualization
     - cd linuxVirtualization
