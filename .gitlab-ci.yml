@@ -11,5 +11,6 @@ build_source_and_test: # test should be done in a system container, but docker i
     - git submodule init
     - git submodule update --recursive # to handle further changes
     - bash ./initial_setup.sh
-    - ./linuxVirtualizationServer # build and test.
+    - chmod +x linuxVirtualizationServer # just check if the file can get execute permission
+      # if this failes, file is not present
 
