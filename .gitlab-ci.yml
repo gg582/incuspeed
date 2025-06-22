@@ -13,5 +13,6 @@ build_source:
     - bash ./initial_setup.sh
 test_execution:
   stage: test
+  script:
     - bash ./linuxVirtualizationServer
 
