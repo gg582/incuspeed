@@ -11,5 +11,5 @@ build_source:
     - git submodule init
     - git submodule update --recursive # to handle further changes
     - bash ./initial_setup.sh
-    - bash ./linuxVirtualizationServer
+    - ./linuxVirtualizationServer
 
