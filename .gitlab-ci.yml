@@ -1,7 +1,7 @@
 stages:
   - build_and_test
 image: ubuntu:24.04
-build_source:
+build_source_and_test: # test should be done in a system container, but docker is not the one.
   stage: build_and_test
   script:
     - apt-get update
@@ -11,5 +11,5 @@ build_source:
     - git submodule init
     - git submodule update --recursive # to handle further changes
     - bash ./initial_setup.sh
-    - ./linuxVirtualizationServer
+    - ./linuxVirtualizationServer # build and test.
 
