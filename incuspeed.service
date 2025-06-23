@@ -1,0 +1,14 @@
+[Unit]
+Description=IncuSpeed Backend Service
+
+[Service]
+Type=forking
+User=root
+ExecStart=/usr/local/bin/incuspeed/server.sh
+ExecReload=/usr/local/bin/incuspeed/server_reload.sh
+ExecStop=/usr/local/bin/incuspeed/kill.sh
+StandardOutput=append:/usr/local/bin/incuspeed/server.log
+StandardError=append:/usr/local/bin/incuspeed/error.log
+
+[Install]
+WantedBy=multi-user.target

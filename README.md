@@ -1,5 +1,5 @@
 
-# 🐧 Linux Virtualization RestAPI Server and Front-End App
+# 🐧IncuSpeed : Linux Virtualization RestAPI Server and Front-End App
 
 > **A super-lightweight LXD/Incus container management GUI for Linux systems**  
 > Current Distro: **🟣 Ubuntu 24.04**
@@ -84,7 +84,7 @@ curl -X POST http://<host>:<port>/start   -d 'my-container'
    ```bash
    make
    ./initial_setup.sh --reconfigure-incus
-   systemctl start --now linuxVirtualization
+   systemctl start --now incuspeed
    ```
 
    > ⚠ **WARNING:**  
