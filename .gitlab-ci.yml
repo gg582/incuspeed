@@ -6,7 +6,7 @@ build_source_and_test: # test should be done in a system container, but docker i
   script:
     - apt-get update
     - apt-get install -y git
-    - git clone https://gitlab.yoonjin2.kr/yjlee/incuspeed
+    - git clone https://gitlab.yoonjin2.kr/yjlee/linuxVirtualization
     - cd incuspeed
     - git submodule init
     - git submodule update --recursive # to handle further changes
