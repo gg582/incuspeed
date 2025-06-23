@@ -8,7 +8,7 @@ then
     rm -r /usr/local/bin/killall.sh
     rm -r /usr/local/bin/server.sh
     rm -r /usr/local/bin/server_reload.sh
-    rm -r /usr/local/bin/incuspeedServer
+    rm -r /usr/bin/incuspeed
     systemctl disable --now incuspeed
     rm -r /usr/lib/systemd/system/incuspeed.service
 fi

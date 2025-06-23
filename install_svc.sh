@@ -13,7 +13,7 @@ then
     mkdir /usr/local/bin/incuspeed
     cp -Rf incuspeed/* /usr/local/bin/incuspeed
     ln -s /usr/local/bin/incuspeed/*.sh /usr/local/bin
-    ln -s /usr/local/bin/incuspeed/incuspeed /usr/local/bin
+    ln -s /usr/local/bin/incuspeed/incuspeed /usr/bin #dirname and binary name are same. installing to /usr/bin
     systemctl daemon-reload
     systemctl enable --now incuspeed
     systemctl start  --now incuspeed
