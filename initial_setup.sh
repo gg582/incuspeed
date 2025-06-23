@@ -5,7 +5,7 @@ if [ -z $OPTION ]
 then
 	OPTION="NONE"
 fi
-echo "Setup script of Virtualization Management Server -- "
+echo "Setup script of IncuSpeed Container Management Server -- "
 sleep  0.5
 if [ $(whoami) = "root" ]
 then

@@ -1,5 +1,5 @@
 #!/bin/bash
-kill -9 $(pgrep linuxVirt)
+kill -9 $(pgrep incuspeed)
 kill -9 $(pgrep server.sh)
 source /root/.bashrc
 cd /usr/local/bin/incuspeed
