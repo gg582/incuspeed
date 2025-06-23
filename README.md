@@ -9,7 +9,7 @@
 ### Purpose of the Project
 Incus is a powerful manager for system containers and VMs, but it typically operates through a text-based user interface (TUI), and all tasks need to be executed through shell commands. This presents a challenge for developers who want to easily set up environments but don't always have access to a full development setup (e.g., on a subway).
 
-This project aims to solve that problem by providing a management app for Incus containers that makes it easier to set up, manage, and test containers on the go. Whether you're developing, testing, or just want to manage your Linux containers from anywhere, this app makes Incus more accessible, especially for non-developers.
+This project aims to solve that problem by providing a management app for Incus containers that makes it easier to set up, manage, and test containers on the go. Whether you're developing, testing, or just want to manage your Linux containers from anywhere, this app makes Incus more accessible, especially for developers.
 
 ### REST API Structure
 
