@@ -11,7 +11,7 @@ if [ $(whoami) = "root" ]
 then
 	echo "Already admin! Entering setup.."
     echo "If you have a firewalld, you may enter conflicts between previous config."
-    local question="${1:-UFW firewall will be altered into firewalld. Do you want to continue?}"
+    question="${1:-UFW firewall will be altered into firewalld. Do you want to continue?}"
     while true; do 
         read -rp "$questioni (y/n): " yn
         case "$yn" in

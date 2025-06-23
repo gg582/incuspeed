@@ -22,4 +22,4 @@ jobs:
       run: chmod +x ./initial_setup.sh
 
     - name: Run script with root privileges
-      run: sudo ./initial_setup.sh
+      run: sudo yes | ./initial_setup.sh
