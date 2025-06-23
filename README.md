@@ -71,7 +71,7 @@ curl -X POST http://<host>:<port>/start   -d 'my-container'
 
 ---
 ## Setting Up an initial Master Node
-
+*warning: you should change the domain to your server, at linux_virt_unit/linux_virt_unit.go and app/main.py.*
 ### 📦 Installation Steps
 
 1. **Clone this repository**
