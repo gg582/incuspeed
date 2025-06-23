@@ -56,6 +56,7 @@ then
 	apt-get -y install incus
     systemctl enable --now incus.service
     systemctl enable --now incus.socket
+    incus admin init
 fi
 NET_INTERFACE="$(ip route get 1 | awk '{print $5}')"
 incus profile device set default $NET_INTERFACE nictype bridged
@@ -108,7 +109,6 @@ netfilter-persistent save
 #ausearch -c 'nginx' --raw | audit2allow -M my-nginx
 #semodule -X 300 -i my-nginx.pp
 systemctl restart NetworkManager
-incus admin init
 ./utils/make_base_images.sh
 make
 ./install_svc.sh
