@@ -9,11 +9,20 @@ echo "Setup script of Virtualization Management Server -- "
 sleep  0.5
 if [ $(whoami) = "root" ]
 then
-		echo "Already admin! Entering setup.."
-    echo "Be sure to locate your linuxVirtualization ZIP"
+	echo "Already admin! Entering setup.."
+    echo "If you have a firewalld, you may enter conflicts between previous config."
+    local question="${1:-UFW firewall will be altered into firewalld. Do you want to continue?}"
+    while true; do 
+        read -rp "$questioni (y/n): " yn
+        case "$yn" in
+            [Yy]* ) break;;
+            [Nn]* ) exit 1;;
+            * ) echo "Wrong input. please type y or n."
+        esac
+    done
 else
-		echo "Please enter your password to switch to root"
-		sudo -s
+	echo "Please enter your password to switch to root"
+	sudo -s
 fi
 sleep 1
 apt-get update -y
