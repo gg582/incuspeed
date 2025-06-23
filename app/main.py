@@ -393,7 +393,7 @@ class ContainerListItem(MDBoxLayout):
         super().__init__(**kwargs)
         self.orientation = 'horizontal'
         self.padding = dp(8)
-        self.spacing = dp(8)
+        self.spacing = dp(16)
         self.size_hint_y = None
         self.height = dp(70) # Fixed height for consistency
 
