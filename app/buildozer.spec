@@ -30,7 +30,7 @@ source.include_patterns = certs/*, fonts/*
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.2.4
+version = 0.2.5
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
