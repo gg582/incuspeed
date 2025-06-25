@@ -48,7 +48,7 @@ Use the `utils/keygen.sh` script included in the main [LVirt repository](https:/
 ```bash
 python main.py
 ```
-
+*To use it on a PC, you should relocate font*
 ---
 
 ## 🔧 Supported Server Functions

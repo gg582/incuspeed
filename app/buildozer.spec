@@ -1,10 +1,10 @@
 [app]
 
 # (str) Title of your application
-title = Linux Virtualization Frontend
+title = IncuSpeed
 
 # (str) Package name
-package.name = lvirtfront
+package.name = Incuspeed
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.yoonjin67
@@ -14,7 +14,7 @@ source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas,crt
-source.include_patterns = certs/*
+source.include_patterns = certs/*, fonts/*
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = assets/*,images/*.png
@@ -30,7 +30,7 @@ source.include_patterns = certs/*
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.2
+version = 0.2.4
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]

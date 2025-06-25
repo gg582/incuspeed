@@ -1,0 +1,42 @@
+# Specify the font file name to be applied globally to the app.
+# This file should be in the same directory as the app or in a path accessible by Kivy.
+#: set GLOBAL_FONT_FILE 'NotoSansCJK-Regular.ttc' # <-- Change to your actual font file path.
+
+# Default style definition for Label widgets
+<Label>:
+    font_name: GLOBAL_FONT_FILE
+    font_size: '25sp'
+    color: '#FFFFFF'
+
+# Default style definition for Button widgets
+<Button>:
+    font_name: GLOBAL_FONT_FILE
+    font_size: '20sp'
+
+# Default style definition for TextInput widgets
+<TextInput>:
+    font_name: GLOBAL_FONT_FILE
+    font_size: '20sp'
+
+# Add other text-related widgets if needed:
+# <ToggleButton>:
+#     font_name: GLOBAL_FONT_FILE
+# <CheckBox>: # If CheckBox has text
+#     font_name: GLOBAL_FONT_FILE
+# <TabbedPanelHeader>:
+#     font_name: GLOBAL_FONT_FILE
+
+# --- App Layout Example ---
+BoxLayout:
+    orientation: 'vertical'
+    padding: '10dp'
+    spacing: '10dp'
+
+    Label:
+        text: 'Global Font Label Set by KV File'
+
+    Button:
+        text: 'Global Font Button Set by KV File'
+
+    TextInput:
+        text: 'Global Font TextInput Set by KV File'
