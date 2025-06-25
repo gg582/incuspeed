@@ -4,7 +4,7 @@
 title = IncuSpeed
 
 # (str) Package name
-package.name = Incuspeed
+package.name = incuspeed
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.yoonjin67
