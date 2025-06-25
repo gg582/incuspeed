@@ -33,6 +33,7 @@ from kivymd.uix.filemanager import MDFileManager  # For file selection
 # Permission handling for Android
 from jnius import autoclass
 from android import activity
+from android.permissions import request_permissions, Permission
 Activity = autoclass('org.kivy.android.PythonActivity')
 Context = autoclass('android.content.Context')
 PackageManager = autoclass('android.content.pm.PackageManager')
@@ -467,7 +468,7 @@ class ManageScreen(Screen):
 
         # Add scrollable container list
         self.scroll = MDScrollView()
-        self.container_list = MDList(spacing=dp(32), padding=dp(16), size_hint_y=None, height=dp(50))
+        self.container_list = MDList(spacing=dp(33), padding=dp(18), size_hint_y=None, height=dp(30))
         self.scroll.add_widget(self.container_list)
         self.layout.add_widget(self.scroll)
 
@@ -624,24 +625,45 @@ class ManageScreen(Screen):
         main_screen.send_request("request")
         self.feedback_label.text = "Container actions requested. List will refresh shortly."
 
-    def open_file_manager(self, instance):
+    def open_file_manager(self, instance) -> None:
+        # Request Android permissions for external storage.
+        # This is crucial for accessing files on Android devices.
         request_permissions([
             Permission.READ_EXTERNAL_STORAGE,
             Permission.WRITE_EXTERNAL_STORAGE,
         ])
-        # Open file manager for file upload
+
+        # Get the main screen instance from the screen manager.
         main_screen = self.manager.get_screen("main")
+
+        # Prevent opening the file manager if another operation (e.g., container creation)
+        # or processing action is currently in progress.
         if main_screen.is_creating_container or self.is_processing_actions:
-            self.feedback_label.text = "Wait for current operation to finish."
+            self.feedback_label.text = "Please wait for the current operation to finish."
             return
-        selected_items = [item for item in self.container_list.children if isinstance(item, ContainerListItem) and item.checkbox_active]
+
+        # Validate that exactly one container is selected for file upload.
+        # Use isinstance correctly without 'obj:' or 'class_or_tuple:'.
+        selected_items = [
+            item for item in self.container_list.children
+            if isinstance(item, ContainerListItem) and item.checkbox_active
+        ]
         if len(selected_items) != 1:
             self.feedback_label.text = "Please select exactly ONE container to upload a file to."
             return
+
+        # Validate that a target path within the container has been entered.
+        # Use .strip() to account for whitespace-only input.
         if not self.inc_path_input.text.strip():
             self.feedback_label.text = "Please enter the target path in the container."
             return
-        self.file_manager.show(os.path.expanduser("~"))
+
+        # If all validations pass, open the KivyMD file manager.
+        # Ensure 'path' is passed as a keyword argument.
+        import os # Ensure os module is imported if not already at the top.
+        self.file_manager.show(path=os.path.expanduser("/storage/emulated/0/Documents"))
+        # Set a flag indicating the file manager is open (useful for managing its state).
+        self.manager_open = True
 
     def select_file_path(self, path):
         # Handle file selection for upload
