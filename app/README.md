@@ -45,10 +45,7 @@ Use the `utils/keygen.sh` script included in the main [LVirt repository](https:/
 
 ### 4. Run the GUI App
 
-```bash
-python main.py
-```
-*To use it on a PC, you should relocate font*
+You can see kivy's buildozer docs.
 ---
 
 ## 🔧 Supported Server Functions

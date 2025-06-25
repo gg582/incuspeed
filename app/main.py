@@ -403,17 +403,17 @@ class ContainerListItem(MDBoxLayout):
         self.padding = dp(8)
         self.spacing = dp(32)
         self.size_hint_y = None
-        self.height = dp(40)
+        self.height = dp(70)
 
         # Add checkbox for selecting the container
         self._checkbox = MDCheckbox(on_release=self.on_checkbox_toggle)
         self.add_widget(self._checkbox)
 
         # Create a vertical layout for text labels
-        self.text_container = MDBoxLayout(orientation='vertical', adaptive_height=True, size_hint_x=1, font_size=dp(9))
-        self.tag_label = MDLabel(text=f"Label: {self.tag}", halign='left', adaptive_height=True, theme_text_color='Primary', font_size=dp(9))
-        self.distro_label = MDLabel(text=f"Distro: {self.distro}", halign='left', adaptive_height=True, theme_text_color='Primary', font_size=dp(9))
-        self.port_status_label = MDLabel(text=f"Port: {self.port}, Status: {self.status.capitalize()}", halign='left', adaptive_height=True, theme_text_color='Secondary', font_size=dp(9))
+        self.text_container = MDBoxLayout(orientation='vertical', adaptive_height=True, size_hint_x=1)
+        self.tag_label = MDLabel(text=f"Label: {self.tag}", halign='left', adaptive_height=True, theme_text_color='Primary')
+        self.distro_label = MDLabel(text=f"Distro: {self.distro}", halign='left', adaptive_height=True, theme_text_color='Primary')
+        self.port_status_label = MDLabel(text=f"Port: {self.port}, Status: {self.status.capitalize()}", halign='left', adaptive_height=True, theme_text_color='Secondary')
 
         # Add labels to text container
         self.text_container.add_widget(self.tag_label)
@@ -466,9 +466,13 @@ class ManageScreen(Screen):
         title_layout.add_widget(title_label)
         self.layout.add_widget(title_layout)
 
+        self.inc_path_input = MDTextField(hint_text="Container Target Path (e.g., /home/user/my_file.txt)", size_hint_x=1)
+        self.inc_path_input.size_hint_y = None
+        self.inc_path_input.height = dp(32)
+        self.layout.add_widget(self.inc_path_input)
         # Add scrollable container list
         self.scroll = MDScrollView()
-        self.container_list = MDList(spacing=dp(35), padding=dp(20), size_hint_y=None, height=dp(35), font_size=dp(9))
+        self.container_list = MDList(spacing=dp(35), padding=dp(20), size_hint_y=None, height=dp(70))
         self.scroll.add_widget(self.container_list)
         self.layout.add_widget(self.scroll)
 
@@ -490,9 +494,6 @@ class ManageScreen(Screen):
         self.upload_file_button = MDRaisedButton(text="Push File", on_release=self.open_file_manager, size_hint_x=1)
 
         # Add input field for file upload path
-        self.inc_path_input = MDTextField(hint_text="Container Target Path (e.g., /home/user/my_file.txt)", size_hint_x=1)
-        self.inc_path_input.size_hint_y = None
-        self.inc_path_input.height = dp(32)
 
         # Add buttons to their respective layouts
         button_layout_bottom.add_widget(self.start_button)
@@ -506,7 +507,6 @@ class ManageScreen(Screen):
         button_layout_fourth.add_widget(self.upload_file_button)
 
         # Add layouts and input field to main layout
-        self.layout.add_widget(self.inc_path_input)
         self.layout.add_widget(button_layout_bottom)
         self.layout.add_widget(button_layout_second)
         self.layout.add_widget(button_layout_third)

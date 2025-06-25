@@ -44,6 +44,7 @@ Other endpoints such as `/delete`, `/create`, and `/request` are detailed in the
 | POST   | `/pause`     | Pause a running container |
 | POST   | `/resume`    | Resume a paused container |
 | POST   | `/restart`   | Restart a container       |
+| POST   | `/upload`    | Upload a file to container|
 
 #### Request Body
 
@@ -66,8 +67,9 @@ All endpoints require a plain text body with the container's tag.
 #### Example Curl
 
 ```bash
-curl -X POST http://<host>:<port>/start   -d 'my-container'
+curl -X POST https://<host>:<port>/start   -d 'my-container'
 ```
+But this is only an example. it will fail because it is secured by SSL/TLS.
 
 ---
 ## Setting Up an initial Master Node
@@ -121,6 +123,9 @@ This certification will be included when building mobile apps.
 ---
 
 ## 🖥 GUI Application Usage
+
+![ContList](./assets/containerlist.jpg)
+![MainScreen](./assets/mainscreen.jpg)
 
 ### ✅ Quick Steps
 
