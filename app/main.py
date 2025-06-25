@@ -367,7 +367,7 @@ class MainScreen(Screen):
             elif endpoint == "register":
                 self.result_label.text = "Registration successful!"
             elif endpoint == "upload":
-                manage_screen.feedback_label.text = f"File uploaded to {selected_tag} at {manage_screen.inc_path_input.text.strip()}: {message}"
+                manage_screen.feedback_label.text = f"File uploaded"
                 manage_screen.is_processing_actions = False
                 manage_screen._toggle_action_buttons_state(True)
             else:
@@ -376,7 +376,7 @@ class MainScreen(Screen):
                 if not self.is_creating_container:
                     self.send_request("request")
                 else:
-                    self.result_label.text = f"Action '{endpoint}' successful, waiting for container creation refresh."
+                    self.result_label.text = f"Action '{endpoint}' successful."
         else:
             if current_screen == self:
                 self.result_label.text = message
@@ -401,19 +401,19 @@ class ContainerListItem(MDBoxLayout):
         # Configure layout properties
         self.orientation = 'horizontal'
         self.padding = dp(8)
-        self.spacing = dp(24)
+        self.spacing = dp(32)
         self.size_hint_y = None
-        self.height = dp(70)
+        self.height = dp(40)
 
         # Add checkbox for selecting the container
         self._checkbox = MDCheckbox(on_release=self.on_checkbox_toggle)
         self.add_widget(self._checkbox)
 
         # Create a vertical layout for text labels
-        self.text_container = MDBoxLayout(orientation='vertical', adaptive_height=True, size_hint_x=1)
-        self.tag_label = MDLabel(text=f"Label: {self.tag}", halign='left', adaptive_height=True, theme_text_color='Primary')
-        self.distro_label = MDLabel(text=f"Distro: {self.distro}", halign='left', adaptive_height=True, theme_text_color='Primary')
-        self.port_status_label = MDLabel(text=f"Port: {self.port}, Status: {self.status.capitalize()}", halign='left', adaptive_height=True, theme_text_color='Secondary')
+        self.text_container = MDBoxLayout(orientation='vertical', adaptive_height=True, size_hint_x=1, font_size=dp(9))
+        self.tag_label = MDLabel(text=f"Label: {self.tag}", halign='left', adaptive_height=True, theme_text_color='Primary', font_size=dp(9))
+        self.distro_label = MDLabel(text=f"Distro: {self.distro}", halign='left', adaptive_height=True, theme_text_color='Primary', font_size=dp(9))
+        self.port_status_label = MDLabel(text=f"Port: {self.port}, Status: {self.status.capitalize()}", halign='left', adaptive_height=True, theme_text_color='Secondary', font_size=dp(9))
 
         # Add labels to text container
         self.text_container.add_widget(self.tag_label)
@@ -458,7 +458,7 @@ class ManageScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Create the main vertical layout
-        self.layout = MDBoxLayout(orientation='vertical', padding=dp(8), spacing=dp(4), size_hint=(1, 1))
+        self.layout = MDBoxLayout(orientation='vertical', padding=dp(8), spacing=dp(16), size_hint=(1, 1))
 
         # Add title layout
         title_layout = MDBoxLayout(orientation='horizontal', size_hint_y=None, padding=(dp(4), 0))
@@ -468,15 +468,15 @@ class ManageScreen(Screen):
 
         # Add scrollable container list
         self.scroll = MDScrollView()
-        self.container_list = MDList(spacing=dp(33), padding=dp(18), size_hint_y=None, height=dp(30))
+        self.container_list = MDList(spacing=dp(35), padding=dp(20), size_hint_y=None, height=dp(35), font_size=dp(9))
         self.scroll.add_widget(self.container_list)
         self.layout.add_widget(self.scroll)
 
         # Create button layouts for actions
-        button_layout_bottom = MDBoxLayout(orientation='horizontal', spacing=dp(16), size_hint_y=None, height=dp(32), padding=(dp(8), 0))
-        button_layout_second = MDBoxLayout(orientation='horizontal', spacing=dp(16), size_hint_y=None, height=dp(32), padding=(dp(8), 0))
-        button_layout_third = MDBoxLayout(orientation='horizontal', spacing=dp(16), size_hint_y=None, height=dp(32), padding=(dp(8), 0))
-        button_layout_fourth = MDBoxLayout(orientation='horizontal', spacing=dp(16), size_hint_y=None, height=dp(32), padding=(dp(8), 0))
+        button_layout_bottom = MDBoxLayout(orientation='horizontal', spacing=dp(36), size_hint_y=None, height=dp(32), padding=(dp(8), 0))
+        button_layout_second = MDBoxLayout(orientation='horizontal', spacing=dp(36), size_hint_y=None, height=dp(32), padding=(dp(8), 0))
+        button_layout_third = MDBoxLayout(orientation='horizontal', spacing=dp(36), size_hint_y=None, height=dp(32), padding=(dp(8), 0))
+        button_layout_fourth = MDBoxLayout(orientation='horizontal', spacing=dp(36), size_hint_y=None, height=dp(32), padding=(dp(8), 0))
 
         # Add action buttons
         self.start_button = MDRaisedButton(text="Start", on_release=lambda x: self.manage_container("start"), size_hint_x=1)
@@ -514,7 +514,7 @@ class ManageScreen(Screen):
 
         # Add feedback label
         self.feedback_label = MDLabel(text="", theme_text_color="Secondary", halign='center', size_hint_y=None, padding=(0, dp(5)))
-        self.layout.add_widget(self.feedback_label)
+        self.layout.add_widget(self.feedback_label) 
 
         # Add main layout to the screen
         self.add_widget(self.layout)
@@ -566,7 +566,7 @@ class ManageScreen(Screen):
                 theme_text_color="Hint",
                 size_hint_y=None,
                 height=dp(40),
-                font_size=dp(14),
+                font_size=dp(9),
             )
             self.container_list.add_widget(placeholder)
             return
@@ -580,8 +580,8 @@ class ManageScreen(Screen):
             halign='center',
             theme_text_color="Hint",
             size_hint_y=None,
-            height=dp(32),
-            font_size=dp(14),
+            height=dp(40),
+            font_size=dp(9),
         )
         self.container_list.add_widget(placeholder)
 
@@ -684,9 +684,10 @@ class ManageScreen(Screen):
             return
         self.is_processing_actions = True
         self._toggle_action_buttons_state(False)
-        self.feedback_label.text = f"Pushing '{os.path.basename(path)}' to {selected_items[0].actualTag} at {container_target_path}..."
+        self.feedback_label.text = f"Pushing item ..."
         main_screen = self.manager.get_screen("main")
         main_screen.send_request("upload", selected_tag=selected_items[0].actualTag, file_path=path, file_target_path=container_target_path)
+        self.feedback_label.text = ""
 
     def exit_file_manager(self):
         # Close the file manager
