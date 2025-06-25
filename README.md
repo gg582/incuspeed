@@ -14,7 +14,6 @@ This project aims to solve that problem by providing a management app for Incus 
 ### REST API Structure
 
 ![RestAPI structure](assets/RestAPIStructure.png)
-![Secure Shell Proxy](assets/SSHConnectionRevProxy.png)
 
 The back-end of the project is built using **Go**, and it interacts with Incus containers through API bindings. The system includes basic requests for managing container states and creating new containers. It operates with a simple API structure that manages container tags and allocates necessary ports for each container.
 
@@ -24,6 +23,7 @@ The back-end of the project is built using **Go**, and it interacts with Incus c
 
 ### Secure Shell Reverse Proxy
 
+![Secure Shell Proxy](assets/SSHConnectionRevProxy.png)
 
 SSH access to containers is managed by an Nginx reverse proxy. When a container starts up, the reverse proxy configuration is automatically updated to route SSH traffic to the container's allocated SSH port.
 
