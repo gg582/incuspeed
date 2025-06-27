@@ -697,6 +697,32 @@ class ManageScreen(Screen):
 class ContainerApp(MDApp):
     def build(self):
         # Configure the app and initialize screens
+                # Font style for general body text (e.g., file/folder names)
+        self.theme_cls.font_styles["Body1"] = [
+            GLOBAL_FONT_FILE,
+            16,    # Font size
+            False, # Bold
+            False, # Italic
+            0.15,  # Kerning
+        ]
+
+        # Font style for smaller texts (e.g., secondary information)
+        self.theme_cls.font_styles["Caption"] = [
+            GLOBAL_FONT_FILE,
+            12,
+            False,
+            False,
+            0.4,
+        ]
+
+        # Font style for buttons (e.g., "Select" or "Cancel" buttons in MDFileManager)
+        self.theme_cls.font_styles["Button"] = [
+            GLOBAL_FONT_FILE,
+            14,
+            True,  # Buttons usually have bold text
+            False,
+            0.1,
+        ]
         cjk_font_path = GLOBAL_FONT_FILE
         print(f"Checking font path: {cjk_font_path}")
         if not os.path.exists(cjk_font_path):
