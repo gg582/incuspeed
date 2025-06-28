@@ -296,21 +296,7 @@ class MainScreen(Screen):
             if not selected_tag or not file_path or not file_target_path:
                 print("Missing info for file upload.")
                 return
-            try:
-                with open(file_path, 'rb') as f:
-                    file_content = f.read()
-                headers = {
-                    'X-Container-Name': selected_tag,
-                    'X-File-Path': file_target_path,
-                    'Content-Type': 'application/octet-stream'
-                }
-                data_to_send = file_content
-            except FileNotFoundError:
-                Clock.schedule_once(lambda dt: self._update_ui_after_request(endpoint, False, f"File not found: {file_path}", None), 0)
-                return
-            except Exception as e:
-                Clock.schedule_once(lambda dt: self._update_ui_after_request(endpoint, False, f"Error reading file: {e}", None), 0)
-                return
+            data_to_send = file_path + '\u0000' + file_target_path
         else:
             # Prepare data for other requests (e.g., list containers)
             if not hasattr(self.manager, 'user_info'):
@@ -332,7 +318,28 @@ class MainScreen(Screen):
         containers_data = None
         try:
             if endpoint in ["start", "stop", "restart", "pause", "delete", "resume", "upload"]:
-                response = requests.post(f"{SERVER_URL}/{endpoint}", data=data_to_send, headers=headers, verify=cert_path)
+                if endpoint == "upload":
+
+                    file_path, file_target_path  = data_to_send.split('\u0000')
+                    try:
+                        with open(file_path, 'rb') as f:
+                            file_content = f.read()
+                        headers = {
+                            'X-Container-Name': selected_tag,
+                            'X-File-Path': file_target_path,
+                            'Content-Type': 'application/octet-stream'
+                        }
+                        data_to_send = file_content
+                    except FileNotFoundError:
+                        Clock.schedule_once(lambda dt: self._update_ui_after_request(endpoint, False, f"File not found: {file_path}", None, selected_tag), 0)
+                        return
+
+                    except Exception as e:
+                        Clock.schedule_once(lambda dt: self._update_ui_after_request(endpoint, False, f"Error reading file: {e}",None, selected_tag), 0)
+                        return
+                    response = requests.post(f"{SERVER_URL}/{endpoint}", data=data_to_send, headers=headers, verify=cert_path, timeout=3600)
+                else:
+                    response = requests.post(f"{SERVER_URL}/{endpoint}", data=data_to_send, headers=headers, verify=cert_path)
             else:
                 response = requests.post(f"{SERVER_URL}/{endpoint}", headers=headers, json=data_to_send, verify=cert_path)
             response.raise_for_status()
@@ -761,3 +768,4 @@ if __name__ == "__main__":
     else:
         cert_path = './certs/ca.crt'
     ContainerApp().run()
+

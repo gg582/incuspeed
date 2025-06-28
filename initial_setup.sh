@@ -74,7 +74,6 @@ INTERFACE_NAME=$(ip route get 1 | awk '{print $5}')
 IP_ADDRESS=$(ip route get 1 | awk '{print $7}')
 
 sleep 2
-cat mongo.props | mongosh --port 27017
 
 #systemctl stop --now dnsmasq
 #systemctl disable dnsmasq
