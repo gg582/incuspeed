@@ -37,6 +37,8 @@ A. Go is easy to learn. Also, Incus natively support Go(since it is implemented 
 Q. Why all POST methods? It is basically CRUD.
 A. To write consistent and simple code, every tasks are managed as POST; Simple information is handled by plain text, detailed one is managed by JSON.  
 
+Q. How can I use it on my server?
+A. You don't need to edit REST Server. Just edit your client app, make your openssl configuration, and certificates too.
 
 ### REST API Structure
 
