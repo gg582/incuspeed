@@ -1,3 +1,4 @@
+from asyncio import MultiLoopChildWatcher
 import os
 import sys
 import platform
@@ -21,6 +22,7 @@ from kivy.uix.widget import Widget
 
 # KivyMD Widgets for UI components
 from kivymd.app import MDApp
+from kivymd.icon_definitions import md_icons
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.textfield import MDTextField
@@ -38,6 +40,22 @@ Activity = autoclass('org.kivy.android.PythonActivity')
 Context = autoclass('android.content.Context')
 PackageManager = autoclass('android.content.pm.PackageManager')
 Permission = autoclass('android.Manifest$permission')
+
+# NOTE: The actual display depends on whether your Korean font contains these glyphs.
+
+EMOJI_CHECKBOX_UNCHECKED = '\u2B1C' # ⬜ (White Large Square - common for unchecked)
+EMOJI_CHECKBOX_CHECKED = '\u2705'   # ✅ (White Heavy Check Mark - common for checked)
+EMOJI_ARROW_LEFT = '\u2B05\uFE0F'   # ⬅️ (Leftwards Black Arrow, with emoji variation selector)
+EMOJI_ARROW_RIGHT = '\u27A1\uFE0F'  # ➡️ (Black Rightwards Arrow, with emoji variation selector)
+EMOJI_CHECK_MARK = '\u2714\uFE0F'   # ✔️ (Heavy Check Mark, with emoji variation selector)
+EMOJI_FOLDER = '\U0001F4C1'         # 📁 (Folder)
+EMOJI_FILE = '\U0001F4C4'           # 📄 (Page Facing Up - common for generic file)
+EMOJI_PLUS = '\u2795'               # ➕ (Heavy Plus Sign)
+EMOJI_MINUS = '\u2796'              # ➖ (Heavy Minus Sign)
+EMOJI_STAR = '\u2B50'               # ⭐ (White Medium Star)
+EMOJI_HEART = '\u2764\uFE0F'        # ❤️ (Heavy Black Heart, with emoji variation selector)
+
+
 def request_permissions(permissions, callback=None):
     try:
         current_activity = Activity.mActivity
@@ -65,7 +83,7 @@ SERVER_URL = "https://hobbies.yoonjin2.kr:32000"  # Server URL for API requests
 cert_path = ""  # Certificate path, set dynamically based on platform
 
 # Path to the global font file, assumed to be in the app's directory
-GLOBAL_FONT_FILE = os.path.join(basedir, 'NotoSansKR-Regular.ttc')
+GLOBAL_FONT_FILE = os.path.join(basedir, 'RobotoCJKSC-Regular.ttf')
 
 # Utility class for AES encryption and decryption
 class CryptoHelper:
@@ -527,6 +545,13 @@ class ManageScreen(Screen):
             select_path=self.select_file_path,
         )
 
+
+        for style, font_props in self.file_manager.theme_cls.font_styles.items():
+            print(f"Processing font style: {style}, props: {font_props}")
+            cjk_font_path = GLOBAL_FONT_FILE
+            if isinstance(font_props, list) and len(font_props) > 0 and cjk_font_path:
+                if  style[:4] == 'Body' or style == 'Subtitle1':
+                    font_props[0] = cjk_font_path  # Set font name only
     def _toggle_action_buttons_state(self, enable):
         # Enable or disable all action buttons and input field
         self.start_button.disabled = not enable
@@ -682,8 +707,6 @@ class ManageScreen(Screen):
         if container_target_path.startswith('..'):
             self.feedback_label.text = "Target path cannot start with '..'."
             return
-        self.is_processing_actions = True
-        self._toggle_action_buttons_state(False)
         self.feedback_label.text = f"Pushing item ..."
         main_screen = self.manager.get_screen("main")
         main_screen.send_request("upload", selected_tag=selected_items[0].actualTag, file_path=path, file_target_path=container_target_path)
@@ -698,31 +721,7 @@ class ContainerApp(MDApp):
     def build(self):
         # Configure the app and initialize screens
                 # Font style for general body text (e.g., file/folder names)
-        self.theme_cls.font_styles["Body1"] = [
-            GLOBAL_FONT_FILE,
-            16,    # Font size
-            False, # Bold
-            False, # Italic
-            0.15,  # Kerning
-        ]
 
-        # Font style for smaller texts (e.g., secondary information)
-        self.theme_cls.font_styles["Caption"] = [
-            GLOBAL_FONT_FILE,
-            12,
-            False,
-            False,
-            0.4,
-        ]
-
-        # Font style for buttons (e.g., "Select" or "Cancel" buttons in MDFileManager)
-        self.theme_cls.font_styles["Button"] = [
-            GLOBAL_FONT_FILE,
-            14,
-            True,  # Buttons usually have bold text
-            False,
-            0.1,
-        ]
         cjk_font_path = GLOBAL_FONT_FILE
         print(f"Checking font path: {cjk_font_path}")
         if not os.path.exists(cjk_font_path):
@@ -731,7 +730,8 @@ class ContainerApp(MDApp):
         for style, font_props in self.theme_cls.font_styles.items():
             print(f"Processing font style: {style}, props: {font_props}")
             if isinstance(font_props, list) and len(font_props) > 0 and cjk_font_path:
-                font_props[0] = cjk_font_path  # Set font name only
+                if style[:4] == 'Body' or style == 'Subtitle1':
+                    font_props[0] = cjk_font_path  # Set font name only
         kv_file_path = os.path.join(basedir, 'incuspeed.kv')
         print(f"Loading KV file: {kv_file_path}")
         if not os.path.exists(kv_file_path):

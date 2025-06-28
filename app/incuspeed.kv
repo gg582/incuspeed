@@ -1,38 +1,5 @@
-# Specify the font file name to be applied globally to the app.
-# This file should be in the same directory as the app or in a path accessible by Kivy.
-# NOTE: This setting is primarily for plain Kivy widgets. For KivyMD widgets,
-# it's more robust to set fonts via MDApp.theme_cls.font_styles in Python.
-#: set GLOBAL_FONT_FILE 'NotoSansKR-Regular.ttf'
+#: set GLOBAL_FONT_TILE 'RobotoCJKSC-Regular.ttf'
 
-# Default style definition for Label widgets
-<Label>:
-    # For KivyMDLabel, font_style overrides this.
-    # If font_style is NOT set, this font_name will apply.
-    font_name: GLOBAL_FONT_FILE
-    font_size: '10sp'
+<MDTextField>:
+    font_name: GLOBAL_FONT_TILE
 
-# Default style definition for Button widgets
-<Button>:
-    font_name: GLOBAL_FONT_FILE
-    font_size: '1-sp'
-
-# Default style definition for TextInput widgets
-<TextInput>:
-    font_name: GLOBAL_FONT_FILE
-    font_size: '10sp'
-
-
-# --- App Layout Example ---
-BoxLayout:
-    orientation: 'vertical'
-    padding: '10dp'
-    spacing: '24dp'
-
-    Label:
-        text: 'Global Font Label Set by KV File'
-
-    Button:
-        text: 'Global Font Button Set by KV File'
-
-    TextInput:
-        text: 'Global Font TextInput Set by KV File'
