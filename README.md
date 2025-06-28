@@ -10,6 +10,33 @@
 Incus is a powerful manager for system containers and VMs, but it typically operates through a text-based user interface (TUI), and all tasks need to be executed through shell commands. This presents a challenge for developers who want to easily set up environments but don't always have access to a full development setup (e.g., on a subway).
 
 This project aims to solve that problem by providing a management app for Incus containers that makes it easier to set up, manage, and test containers on the go. Whether you're developing, testing, or just want to manage your Linux containers from anywhere, this app makes Incus more accessible, especially for developers.
+### Strength compared to Well-known Apps
+
+Many kinds of Incus management app is constructed as Web App Dashboard. Although it supports strong, and detailed setup for managing Incus container, too many settings and details are not necessary for creating simple containers.
+Many of developers, and amateur programmers may face a clear fact: our habits for testing containers are, basically similar to CRUD.
+
+If someone needs to deploy huge web services, one has better solution: Podman-Compose/Docker-Compose, Kubernetes.
+
+Also, there are many ready-made solutions, like AWS, GKE. For production use, one can use them.
+
+This project aims for **dumb, but prominent container works**. With this Mobile app and server set, you can manage it simpler.
+
+#### Questions & Answers
+Q. How about monitoring metrics and logger of server?
+A. Use Kibana, Java Resource Monitoring functions, Grafana, etc. Those are not suitable for **dumb application**.
+
+Q. Can I transfer big files into container?
+A. Recently updated. Check for v0.2.6.
+
+Q. What languages does it support?
+A. I am from South Korea. So, CJK + English, and some well-known European alphabets are supported. Check the font that I provided.
+
+Q. Why did you select Go, and Python3?
+A. Go is easy to learn. Also, Incus natively support Go(since it is implemented in Go). Python3 + KivyMD is great choice for fast prototyping.
+
+Q. Why all POST methods? It is basically CRUD.
+A. To write consistent and simple code, every tasks are managed as POST; Simple information is handled by plain text, detailed one is managed by JSON.  
+
 
 ### REST API Structure
 
@@ -61,15 +88,15 @@ All endpoints require a plain text body with the container's tag.
 | Code | Meaning                      |
 |------|------------------------------|
 | 200  | State changed successfully   |
+| 202  | File Push Accepted       g   |
 | 400  | Bad request (e.g. missing tag) |
 | 500  | Internal server error        |
 
 #### Example Curl
 
 ```bash
-curl -X POST https://<host>:<port>/start   -d 'my-container'
+curl -X POST https://<host>:<port>/start   -d 'my-container --cacert ca.crt'
 ```
-But this is only an example. it will fail because it is secured by SSL/TLS.
 
 ---
 ## Setting Up an initial Master Node
@@ -205,7 +232,7 @@ linuxVirtualization/
 ├── go.sum
 ├── initial_setup.sh # initial setup script
 ├── install_svc.sh # install daemon service script
-├── killall.sh # force delete all informations
+├── killall.sh # force delete all information
 ├── kill_for_reload.sh 
 ├── kill.sh # systemctl stop command
 ├── linuxVirtualizationServer # go compiled binary
@@ -221,7 +248,7 @@ linuxVirtualization/
 │   │   ├── base_images.go # auto-generated base image fingerprints
 │   │   ├── change_container_status.go # state change logic
 │   │   ├── create_containers.go # container creation logic
-│   │   ├── get_info.go # get miscellanous informations
+│   │   ├── get_info.go # get miscellanous information
 │   │   ├── handle_container_state_change.go # handle state change endpoints
 │   │   ├── handle_user_info.go # securely handle user auth
 │   │   └── worker_pool.go # multi-processing worker pool
