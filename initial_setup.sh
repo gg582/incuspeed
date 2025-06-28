@@ -105,13 +105,13 @@ firewall-cmd --zone=trusted --change-interface=incusbr0 --permanent
 apt install iptables-persistent -y
 iptables -I FORWARD 1 -i incusbr0 -j ACCEPT
 iptables -I FORWARD 1 -o incusbr0 -j ACCEPT
-sudo iptables -P INPUT ACCEPT
-sudo iptables -P FORWARD ACCEPT
-sudo iptables -P OUTPUT ACCEPT
-sudo iptables -A INPUT -p tcp --dport 27020:60000 -j ACCEPT
-sudo iptables -A OUTPUT -p tcp --dport 27020:60000 -j ACCEPT
-sudo iptables -A OUTPUT -p tcp --dport 27020:60000 -j ACCEPT
-sudo iptables -A OUTPUT -p udp --dport 27020:60000 -j ACCEPT
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -A INPUT -p tcp --dport 27020:60000 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 27020:60000 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 27020:60000 -j ACCEPT
+iptables -A OUTPUT -p udp --dport 27020:60000 -j ACCEPT
 netfilter-persistent save
 
 #ausearch -c 'nginx' --raw | audit2allow -M my-nginx
