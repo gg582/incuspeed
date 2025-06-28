@@ -12,6 +12,7 @@ build_source_and_test: # test should be done in a system container, but docker i
     - git submodule init
     - git submodule update --recursive # to handle further changes
     - echo y | bash ./initial_setup.sh
+    - make
     - chmod +x incuspeed # just check if the file can get execute permission
       # if this failes, file is not present
 
