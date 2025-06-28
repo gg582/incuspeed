@@ -144,6 +144,58 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/upload": {
+            "post": {
+                "description": "Uploads a file to a container with the destination path specified in the \"X-File-Path\" header.\"",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "upload"
+                ],
+                "summary": "Upload a file to a container",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Absolute file path inside the container (e.g., /home/user/file.txt)",
+                        "name": "X-File-Path",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Target container name",
+                        "name": "X-Container-Name",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "File to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "File '/absolute/path' queued for processing on container 'container_name'.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error message describing the reason (e.g., missing headers, invalid path)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
