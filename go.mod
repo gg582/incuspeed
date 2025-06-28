@@ -1,21 +1,13 @@
-module example.com/m/v2
+module github.com/yoonjin67/incuspeed
 
 go 1.23.0
 
-replace github.com/yoonjin67/linux_virt_unit => ./linux_virt_unit
-
-replace github.com/yoonjin67/linux_virt_unit/mongo_connect => ./linux_virt_unit/mongo_connect
-
-replace github.com/yoonjin67/linux_virt_unit/incus_unit => ./linux_virt_unit/incus_unit
-
-replace github.com/yoonjin67/linux_virt_unit/crypto => ./linux_virt_unit/crypto
-
-replace github.com/yoonjin67/linux_virt_unit/http_request => ./linux_virt_unit/http_request
+toolchain go1.23.10
 
 require (
 	github.com/lxc/incus v0.7.0
-	github.com/swaggo/swag v1.8.12
-	github.com/yoonjin67/linux_virt_unit v0.0.0-00010101000000-000000000000
+	github.com/swaggo/swag v1.16.4
+	github.com/yoonjin67/linux_virt_unit v0.2.6
 )
 
 require (
@@ -34,12 +26,10 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/muhlemmer/gu v0.3.1 // indirect
 	github.com/pkg/sftp v1.13.6 // indirect
-	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
 	github.com/swaggo/http-swagger/v2 v2.0.2 // indirect
@@ -59,7 +49,6 @@ require (
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
