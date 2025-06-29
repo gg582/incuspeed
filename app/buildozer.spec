@@ -7,7 +7,7 @@ title = IncuSpeed
 package.name = incuspeed
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.yoonjin67
+package.domain = org.gg582
 
 # (str) Source code where the main.py live
 source.dir = .

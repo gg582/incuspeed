@@ -73,7 +73,7 @@ def request_permissions(permissions, callback=None):
 # Determine the base directory based on the execution environment
 if getattr(sys, 'frozen', False):  # Running as a bundled app (e.g., Android APK)
     if platform.system() == 'Android':
-        basedir = '/data/data/org.yoonjin67.incuspeed/files/app/'  # Android internal storage path
+        basedir = '/data/data/org.gg582.incuspeed/files/app/'  # Android internal storage path
     else:  # Bundled on desktop (Windows, Linux, macOS)
         basedir = os.path.dirname(sys.executable)  # Directory of the executable
 else:  # Running in development mode (from source)
