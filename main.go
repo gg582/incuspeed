@@ -7,10 +7,10 @@ import (
     "io"
 
 	client "github.com/lxc/incus/client"
-	http_request "github.com/yoonjin67/linux_virt_unit/http_request"
-	incus_unit "github.com/yoonjin67/linux_virt_unit/incus_unit"
-    . "github.com/yoonjin67/linux_virt_unit"
-	db "github.com/yoonjin67/linux_virt_unit/mongo_connect"
+	http_request "github.com/gg582/linux_virt_unit/http_request"
+	incus_unit "github.com/gg582/linux_virt_unit/incus_unit"
+    . "github.com/gg582/linux_virt_unit"
+	db "github.com/gg582/linux_virt_unit/mongo_connect"
 )
 
 // @title Linux Virtualization API
