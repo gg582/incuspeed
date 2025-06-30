@@ -23,7 +23,11 @@ IMAGES=(
 container_count=1
 
 for IMAGE in "${IMAGES[@]}"; do
-    ALIAS=$(echo "$IMAGE" | tr '/' '-')
+    if [ "$IMAGE" == "centos/9-Stream" ]; then
+        ALIAS="centos-9stream"
+    else
+        ALIAS=$(echo "$IMAGE" | tr '/' '-')
+    fi
     container_name="tmp${container_count}"
     echo "Launching $container_name from image $IMAGE..."
 
@@ -76,8 +80,8 @@ for IMAGE in "${IMAGES[@]}"; do
         exit 1
     fi
 
-    incus file push -r /usr/local/bin/linuxVirtualization/conSSH.sh "$container_name"/
-    incus file push -r /usr/local/bin/linuxVirtualization/tools/manage_ssh "$container_name"/usr/bin/
+    incus file push -r /usr/local/bin/incuspeed/conSSH.sh "$container_name"/
+    incus file push -r /usr/local/bin/incuspeed/tools/manage_ssh "$container_name"/usr/bin/
     echo "Publishing $container_name as image with alias $ALIAS..."
     incus stop "$container_name" --force
     incus publish "$container_name" --alias "$ALIAS" --public

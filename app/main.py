@@ -139,7 +139,7 @@ class MainScreen(Screen):
         # Add input fields for username, password, distro, and container tag
         self.username_input = MDTextField(hint_text="Username", size_hint_x=None, width=central_layout.width)
         self.password_input = MDTextField(hint_text="Password", password=True, size_hint_x=None, width=central_layout.width)
-        self.container_tag = MDTextField(hint_text="Container Label (e.g., my-web-app)", size_hint_x=None, width=central_layout.width)
+        self.container_tag = MDTextField(hint_text="Container Label (e.g., my-web-app)", size_hint_x=None, width=central_layout.width, max_text_length=10)
         self.distro = MDTextField(hint_text="Distro:Version (e.g., ubuntu:22.04)", size_hint_x=None, width=central_layout.width)
 
         central_layout.add_widget(self.username_input)
