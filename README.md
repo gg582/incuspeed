@@ -51,7 +51,7 @@ The back-end of the project is built using **Go**, and it interacts with Incus c
 
 - **Ports:** 
   - First port is used for SSH access (OpenBSD Secure Shell).
-  - Two additional ports are available for other services like MySQL, XRDP, etc.
+  - Two additional ports are available for other services like MySQL, XRDP, etc. (30001, 30002)
 
 ### Secure Shell Reverse Proxy
 
