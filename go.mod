@@ -3,10 +3,12 @@ module github.com/gg582/incuspeed
 go 1.24.4
 
 require (
-	github.com/gg582/linux_virt_unit v0.2.6
+	github.com/gg582/linux_virt_unit v0.2.7
 	github.com/lxc/incus v0.7.0
 	github.com/swaggo/swag v1.16.4
 )
+
+replace github.com/gg582/linux_virt_unit => ./linux_virt_unit
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
