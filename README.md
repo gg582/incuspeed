@@ -26,7 +26,10 @@ Q. How about monitoring metrics and logger of server?
 A. Use Kibana, Java Resource Monitoring functions, Grafana, etc. Those are not suitable for **dumb application**.
 
 Q. Can I transfer big files into container?
-A. Recently updated. Check for v0.2.6.
+A. Recently updated. Check for v0.2.7.
+
+Q. How can I specify filename?
+A. Add file extension at your destination.
 
 Q. What languages does it support?
 A. I am from South Korea. So, CJK + English, and some well-known European alphabets are supported. Check the font that I provided.
