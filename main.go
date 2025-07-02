@@ -9,6 +9,7 @@ import (
 	client "github.com/lxc/incus/client"
 	http_request "github.com/gg582/linux_virt_unit/http_request"
 	incus_unit "github.com/gg582/linux_virt_unit/incus_unit"
+	file_upload "github.com/gg582/linux_virt_unit/file_upload"
     . "github.com/gg582/linux_virt_unit"
 	db "github.com/gg582/linux_virt_unit/mongo_connect"
 )
@@ -21,6 +22,8 @@ import (
 
 func main() {
     incus_unit.InitWorkQueue()
+    file_upload.InitWorkQueue()
+    go file_upload.StartFilePushWorker()
     var err error
     incus_unit.WorkQueue.Start(48)
     defer incus_unit.WorkQueue.Stop()
