@@ -168,6 +168,13 @@
             "required": true
           },
           {
+            "type": "string",
+            "description": "Absolute file path inside the mobile client (e.g., /storage/emulated/0/Downloads",
+            "name": "X-Host-Path",
+            "in": "header",
+            "required": true
+          },
+          {
             "type": "file",
             "description": "File to upload",
             "name": "file",
