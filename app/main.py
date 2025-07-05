@@ -31,7 +31,9 @@ from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.list import MDList
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.filemanager import MDFileManager  # For file selection
+from kivy.config import Config
 
+Window.size = (400, 750)
 # Plyer FileChooser for File Manager call
 
 # Permission handling for Android
@@ -74,7 +76,7 @@ if getattr(sys, 'frozen', False):  # Running as a bundled app (e.g., Android APK
     if platform.system() == 'Android':
         basedir = '/data/data/org.gg582.incuspeed/files/app/'  # Android internal storage path
     else:  # Bundled on desktop (Windows, Linux, macOS)
-        basedir = os.path.dirname(sys.executable)  # Directory of the executable
+        basedir = sys._MEIPASS  # Directory of the executable
 else:  # Running in development mode (from source)
     basedir = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 
@@ -644,6 +646,8 @@ class ManageScreen(Screen):
         self.feedback_label.text = "Container actions requested. List will refresh shortly."
 
     def select_file_path(self, path):
+        if self.container_list.children == None or path == None:
+            return
         # Handle file selection for upload
         selected_items = [item for item in self.container_list.children if isinstance(item, ContainerListItem) and item.checkbox_active]
         if not selected_items:
@@ -713,8 +717,7 @@ class ManageScreen(Screen):
 class ContainerApp(MDApp):
     def build(self):
         # Configure the app and initialize screens
-                # Font style for general body text (e.g., file/folder names)
-
+        # Font style for general body text (e.g., file/folder names)
         cjk_font_path = GLOBAL_FONT_FILE
         print(f"Checking font path: {cjk_font_path}")
         if not os.path.exists(cjk_font_path):
@@ -754,8 +757,6 @@ if __name__ == "__main__":
             cert_path = os.path.join(basedir, 'certs', 'ca.crt')
         else:
             cert_path = os.path.join(basedir, 'certs', 'ca.crt')
-    else:
-        cert_path = './certs/ca.crt'
-    ContainerApp().run()
 
+    ContainerApp().run()
 

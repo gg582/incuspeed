@@ -1,9 +1,9 @@
 
-# 🖥️ LVirt Basic GUI Client
+# 🖥️ IncuSpeed Basic GUI Client
 
-A graphical interface for the [LVirt Project](https://github.com/your-username/linuxVirtualization) — a lightweight container management platform using LXD/Incus.
+A graphical interface for the [IncuSpeed Project](https://github.com/gg582/incuspeed) — a lightweight container management platform using LXD/Incus.
 
-This client allows users to securely communicate with the LVirt server over HTTPS and manage containers with ease.
+This client allows users to securely communicate with the IncuSpeed server over HTTPS and manage containers with ease.
 
 ---
 
@@ -25,8 +25,8 @@ This client allows users to securely communicate with the LVirt server over HTTP
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/lvirt-client.git
-cd lvirt-client
+git clone https://github.com/gg582/incuspeed
+cd app
 ```
 
 ### 2. Install Dependencies
@@ -37,10 +37,10 @@ pip install -r requirements.txt
 
 ### 3. Generate Client Certificate
 
-This app requires a valid client certificate for encrypted HTTPS communication with the LVirt server.
+This app requires a valid client certificate for encrypted HTTPS communication with the IncuSpeed server.
 
 🔐 **Important:**  
-Use the `utils/keygen.sh` script included in the main [LVirt repository](https://github.com/your-username/linuxVirtualization) to generate the certificate.
+Use the `utils/keygen.sh` script included in the main [IncuSpeed repository](https://github.com/gg582/incuspeed) to generate the certificate.
 
 
 ### 4. Run the GUI App
@@ -50,16 +50,7 @@ You can see kivy's buildozer docs.
 
 ## 🔧 Supported Server Functions
 
-This client communicates with the following LVirt server endpoints:
-
-| Method | Endpoint     | Description               |
-|--------|--------------|---------------------------|
-| POST   | `/start`     | Start a container         |
-| POST   | `/pause`     | Pause a running container |
-| POST   | `/resume`    | Resume a paused container |
-| POST   | `/restart`   | Restart a container       |
-
-Other endpoints (`/create`, `/delete`, `/request`, etc.) are available and documented through Swagger:
+This client communicates with documented endpoints(`/create`, `/delete`, `/request`, etc.);they are documented through Swagger:
 
 📚 **Swagger Documentation**  
 Access it via your server:  
@@ -78,10 +69,9 @@ Access it via your server:
 ## 🗂 Directory Overview
 
 ```text
-lvirt-client/
+app/
 ├── certs/
-│   ├── client.crt
-│   └── client.key
+│   ├── ca.crt
 ├── main.py
 ├── requirements.txt
 └── README.md
@@ -91,7 +81,7 @@ lvirt-client/
 
 ## 📝 Notes
 
-- Make sure the LVirt server is running and accessible at the correct domain/port.
+- Make sure the IncuSpeed server is running and accessible at the correct domain/port.
 - Adjust `server_domain` and `https_port` settings in your code or config as needed.
 - You must **generate your certificate before launching the app**.
 
@@ -99,7 +89,7 @@ lvirt-client/
 
 ## 📄 License
 
-MIT License © 2025 LVirt Project
+MIT License © 2025 IncuSpeed Project
 
 ---
 
