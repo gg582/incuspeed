@@ -19,7 +19,7 @@ If someone needs to deploy huge web services, one has better solution: Podman-Co
 
 Also, there are many ready-made solutions, like AWS, GKE. For production use, one can use them.
 
-This project aims for **dumb, but prominent container works**. With this Mobile app and server set, you can manage it simpler.
+This project aims for **dumb, but prominent container works**. With this Desktop/Mobile app and server set, you can manage it simpler.
 
 #### Questions & Answers
 Q. How about monitoring metrics and logger of server?
@@ -160,6 +160,8 @@ This certification will be included when building mobile apps.
 
 ![ContList](./assets/containerlist.jpg)
 ![MainScreen](./assets/mainscreen.jpg)
+*warning: you can't use Push File for android mobile app. Related to jnius type conversion.*
+*Same screen will show up with PC, you can use it instead.*
 
 ### ✅ Quick Steps
 
