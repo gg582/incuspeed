@@ -6,4 +6,5 @@ requests
 buildozer
 setuptools
 cython
+plyer
 

@@ -32,29 +32,28 @@ from kivymd.uix.list import MDList
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.filemanager import MDFileManager  # For file selection
 
+# Plyer FileChooser for File Manager call
+
 # Permission handling for Android
-from jnius import autoclass
-from android import activity
-from android.permissions import request_permissions, Permission
-Activity = autoclass('org.kivy.android.PythonActivity')
-Context = autoclass('android.content.Context')
-PackageManager = autoclass('android.content.pm.PackageManager')
-Permission = autoclass('android.Manifest$permission')
+# Some latest android devies have bug for try - except
+try:
+    from jnius import autoclass
+    from android import activity
+    from android.permissions import request_permissions, Permission
+    Activity = autoclass('org.kivy.android.PythonActivity')
+    Context = autoclass('android.content.Context')
+    PackageManager = autoclass('android.content.pm.PackageManager')
+    Permission = autoclass('android.Manifest$permission')
+except Exception as e:
+    print("Failed to request android libs. Is it desktop app? error: ", e)
 
-# NOTE: The actual display depends on whether your Korean font contains these glyphs.
-
-EMOJI_CHECKBOX_UNCHECKED = '\u2B1C' # ⬜ (White Large Square - common for unchecked)
-EMOJI_CHECKBOX_CHECKED = '\u2705'   # ✅ (White Heavy Check Mark - common for checked)
-EMOJI_ARROW_LEFT = '\u2B05\uFE0F'   # ⬅️ (Leftwards Black Arrow, with emoji variation selector)
-EMOJI_ARROW_RIGHT = '\u27A1\uFE0F'  # ➡️ (Black Rightwards Arrow, with emoji variation selector)
-EMOJI_CHECK_MARK = '\u2714\uFE0F'   # ✔️ (Heavy Check Mark, with emoji variation selector)
-EMOJI_FOLDER = '\U0001F4C1'         # 📁 (Folder)
-EMOJI_FILE = '\U0001F4C4'           # 📄 (Page Facing Up - common for generic file)
-EMOJI_PLUS = '\u2795'               # ➕ (Heavy Plus Sign)
-EMOJI_MINUS = '\u2796'              # ➖ (Heavy Minus Sign)
-EMOJI_STAR = '\u2B50'               # ⭐ (White Medium Star)
-EMOJI_HEART = '\u2764\uFE0F'        # ❤️ (Heavy Black Heart, with emoji variation selector)
-
+#from jnius import autoclass
+#from android import activity
+#from android.permissions import request_permissions, Permission
+#Activity = autoclass('org.kivy.android.PythonActivity')
+#Context = autoclass('android.content.Context')
+#PackageManager = autoclass('android.content.pm.PackageManager')
+#Permission = autoclass('android.Manifest$permission')
 
 def request_permissions(permissions, callback=None):
     try:
@@ -546,19 +545,6 @@ class ManageScreen(Screen):
         self.selected_containers = {}  # Store selected containers
         self.is_processing_actions = False  # Flag for action status
 
-        # Initialize file manager for file uploads
-        self.file_manager = MDFileManager(
-            exit_manager=self.exit_file_manager,
-            select_path=self.select_file_path,
-        )
-
-
-        for style, font_props in self.file_manager.theme_cls.font_styles.items():
-            print(f"Processing font style: {style}, props: {font_props}")
-            cjk_font_path = GLOBAL_FONT_FILE
-            if isinstance(font_props, list) and len(font_props) > 0 and cjk_font_path:
-                if  style[:4] == 'Body' or style == 'Subtitle1':
-                    font_props[0] = cjk_font_path  # Set font name only
     def _toggle_action_buttons_state(self, enable):
         # Enable or disable all action buttons and input field
         self.start_button.disabled = not enable
@@ -657,49 +643,8 @@ class ManageScreen(Screen):
         main_screen.send_request("request")
         self.feedback_label.text = "Container actions requested. List will refresh shortly."
 
-    def open_file_manager(self, instance) -> None:
-        # Request Android permissions for external storage.
-        # This is crucial for accessing files on Android devices.
-        request_permissions([
-            Permission.READ_EXTERNAL_STORAGE,
-            Permission.WRITE_EXTERNAL_STORAGE,
-        ])
-
-        # Get the main screen instance from the screen manager.
-        main_screen = self.manager.get_screen("main")
-
-        # Prevent opening the file manager if another operation (e.g., container creation)
-        # or processing action is currently in progress.
-        if main_screen.is_creating_container or self.is_processing_actions:
-            self.feedback_label.text = "Please wait for the current operation to finish."
-            return
-
-        # Validate that exactly one container is selected for file upload.
-        # Use isinstance correctly without 'obj:' or 'class_or_tuple:'.
-        selected_items = [
-            item for item in self.container_list.children
-            if isinstance(item, ContainerListItem) and item.checkbox_active
-        ]
-        if len(selected_items) != 1:
-            self.feedback_label.text = "Please select exactly ONE container to upload a file to."
-            return
-
-        # Validate that a target path within the container has been entered.
-        # Use .strip() to account for whitespace-only input.
-        if not self.inc_path_input.text.strip():
-            self.feedback_label.text = "Please enter the target path in the container."
-            return
-
-        # If all validations pass, open the KivyMD file manager.
-        # Ensure 'path' is passed as a keyword argument.
-        import os # Ensure os module is imported if not already at the top.
-        self.file_manager.show(path=os.path.expanduser("/storage/emulated/0/Documents"))
-        # Set a flag indicating the file manager is open (useful for managing its state).
-        self.manager_open = True
-
     def select_file_path(self, path):
         # Handle file selection for upload
-        self.exit_file_manager()
         selected_items = [item for item in self.container_list.children if isinstance(item, ContainerListItem) and item.checkbox_active]
         if not selected_items:
             self.feedback_label.text = "No container selected. Cannot upload file."
@@ -716,13 +661,54 @@ class ManageScreen(Screen):
             return
         self.feedback_label.text = f"Pushing item ..."
         main_screen = self.manager.get_screen("main")
-        main_screen.send_request("upload", selected_tag=selected_items[0].actualTag, file_path=path, file_target_path=container_target_path)
+        for selected_item in selected_items:
+            if selected_item == "":
+                continue
+            for current_file in path:
+                if current_file == "":
+                    continue
+                main_screen.send_request("upload", selected_tag=selected_item.actualTag, file_path=current_file, file_target_path=container_target_path)
         self.feedback_label.text = ""
 
-    def exit_file_manager(self):
-        # Close the file manager
-        self.file_manager.close()
 
+
+    def open_file_manager(self, instance) -> None:
+        # Request Android permissions for external storage.
+        # This is crucial for accessing files on Android devices.
+        try:
+            request_permissions([
+                Permission.READ_EXTERNAL_STORAGE,
+                Permission.WRITE_EXTERNAL_STORAGE,
+            ])
+        except Exception as e:
+            print("Failed to request permission. Is it desktop app? error: ", e)
+
+        # Get the main screen instance from the screen manager.
+        main_screen = self.manager.get_screen("main")
+
+        # Prevent opening the file manager if another operation (e.g., container creation)
+        # or processing action is currently in progress.
+        if main_screen.is_creating_container or self.is_processing_actions:
+            self.feedback_label.text = "Please wait for the current operation to finish."
+            return
+
+        # Validate that exactly one container is selected for file upload.
+        # Use isinstance correctly without 'obj:' or 'class_or_tuple:'.
+        selected_items = [
+            item for item in self.container_list.children
+            if isinstance(item, ContainerListItem) and item.checkbox_active
+        ]
+
+        # Validate that a target path within the container has been entered.
+        # Use .strip() to account for whitespace-only input.
+        if not self.inc_path_input.text.strip():
+            self.feedback_label.text = "Please enter the target path in the container."
+            return
+        from plyer import filechooser
+        filechooser.open_file(
+            on_selection = self.select_file_path,
+            filters=['*.*', '*', '.*'],
+            multiple=True)
 # Main application class
 class ContainerApp(MDApp):
     def build(self):
@@ -753,10 +739,13 @@ class ContainerApp(MDApp):
         print("Build completed, returning screen manager")
         return sm
     def on_start(self):
-        request_permissions([
-            Permission.READ_EXTERNAL_STORAGE,
-            Permission.WRITE_EXTERNAL_STORAGE,
-        ])
+        try:
+            request_permissions([
+                Permission.READ_EXTERNAL_STORAGE,
+                Permission.WRITE_EXTERNAL_STORAGE,
+            ])
+        except Exception as e:
+            print("Failed to request permission. Is it desktop app? error: ", e)
 
 if __name__ == "__main__":
     # Set certificate path and run the app
@@ -768,4 +757,5 @@ if __name__ == "__main__":
     else:
         cert_path = './certs/ca.crt'
     ContainerApp().run()
+
 
