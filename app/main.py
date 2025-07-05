@@ -716,6 +716,7 @@ class ManageScreen(Screen):
 # Main application class
 class ContainerApp(MDApp):
     def build(self):
+        self.icon = os.path.join(basedir, 'icon.png')
         # Configure the app and initialize screens
         # Font style for general body text (e.g., file/folder names)
         cjk_font_path = GLOBAL_FONT_FILE
