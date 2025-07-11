@@ -10,4 +10,4 @@ $(cat temp_map.txt)
 
 rm temp_map.txt
 
-echo "base_images.go 파일 생성 완료"
+echo "base_images.go generated"
