@@ -1,10 +1,9 @@
 kivy
-kivymd
+kivymd2
 pycryptodome
 bcrypt
 requests
 buildozer
 setuptools
-cython
-plyer
+cython==0.29.34
 

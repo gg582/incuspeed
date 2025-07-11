@@ -31,13 +31,8 @@ from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.list import MDList
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.filemanager import MDFileManager  # For file selection
-from kivy.config import Config
-
-Window.size = (400, 750)
-# Plyer FileChooser for File Manager call
 
 # Permission handling for Android
-# Some latest android devies have bug for try - except
 try:
     from jnius import autoclass
     from android import activity
@@ -46,16 +41,13 @@ try:
     Context = autoclass('android.content.Context')
     PackageManager = autoclass('android.content.pm.PackageManager')
     Permission = autoclass('android.Manifest$permission')
-except Exception as e:
-    print("Failed to request android libs. Is it desktop app? error: ", e)
+    Settings = autoclass('android.provider.Settings')
+    Intent = autoclass('android.content.Intent')
+    Environment = autoclass('android.os.Environment')
+    Uri = autoclass('android.net.Uri')
+except:
+    Window.size = (400,700)
 
-#from jnius import autoclass
-#from android import activity
-#from android.permissions import request_permissions, Permission
-#Activity = autoclass('org.kivy.android.PythonActivity')
-#Context = autoclass('android.content.Context')
-#PackageManager = autoclass('android.content.pm.PackageManager')
-#Permission = autoclass('android.Manifest$permission')
 
 def request_permissions(permissions, callback=None):
     try:
@@ -76,7 +68,7 @@ if getattr(sys, 'frozen', False):  # Running as a bundled app (e.g., Android APK
     if platform.system() == 'Android':
         basedir = '/data/data/org.gg582.incuspeed/files/app/'  # Android internal storage path
     else:  # Bundled on desktop (Windows, Linux, macOS)
-        basedir = sys._MEIPASS  # Directory of the executable
+        basedir = os.path.dirname(sys.executable)  # Directory of the executable
 else:  # Running in development mode (from source)
     basedir = os.path.dirname(os.path.abspath(__file__))  # Directory of the script
 
@@ -160,11 +152,13 @@ class MainScreen(Screen):
         # Add buttons for creating container, registering user, and managing containers
         self.create_container_button = MDRaisedButton(text="Create Container", on_release=self.create_container, size_hint_x=None)
         self.register_button = MDRaisedButton(text="Register", on_release=self.register_user, size_hint_x=None)
+        self.unregister_button = MDRaisedButton(text="Unregister", on_release=self.unregister_user, size_hint_x=None)
         self.manage_button = MDRaisedButton(text="Manage Containers", on_release=self.go_to_manage, size_hint_x=1)
         self.manage_button.width = central_layout.width
 
         buttons_container.add_widget(self.create_container_button)
         buttons_container.add_widget(self.register_button)
+        buttons_container.add_widget(self.unregister_button)
         buttons_container.add_widget(self.manage_button)
 
         # Add spacer and buttons to central layout
@@ -204,6 +198,16 @@ class MainScreen(Screen):
             return
         self.send_user_info()
         self.send_request("register")
+
+    def unregister_user(self, instance):
+        if self.is_creating_container:
+            self.result_label.text = "A container creation is in progress. Please wait."
+            return
+        if not self.username_input.text or not self.password_input.text:
+            self.result_label.text = "Enter username and password to register."
+            return
+        self.send_user_info()
+        self.send_request("unregister")
 
     def create_container(self, instance):
         # Initiate container creation if conditions are met
@@ -245,7 +249,19 @@ class MainScreen(Screen):
 
         if endpoint == "register":
             # Prepare data for user registration
-            data_to_send = self.manager.user_info
+            username = self.username_input.text
+            password = self.password_input.text
+            key = base64.b64encode(get_random_bytes(32)).decode()
+            encrypted_username, iv_username = CryptoHelper.encrypt(username, key)
+            encrypted_password, iv_password = CryptoHelper.encrypt(password, key)
+            data = {
+                "username": encrypted_username,
+                "username_iv": iv_username,
+                "password": encrypted_password,
+                "password_iv": iv_password,
+                "key": key,
+            }
+            data_to_send = data
         elif endpoint == "create":
             # Prepare data for container creation
             if not hasattr(self.manager, 'user_info'):
@@ -306,6 +322,7 @@ class MainScreen(Screen):
             data_to_send = {
                 "username": self.manager.user_info['username'],
                 "username_iv": self.manager.user_info['username_iv'],
+                "password": self.manager.user_info['password'],
                 "key": self.manager.user_info['key'],
             }
 
@@ -327,6 +344,7 @@ class MainScreen(Screen):
                             file_content = f.read()
                         headers = {
                             'X-Container-Name': selected_tag,
+                            'X-Host-Path': file_path,
                             'X-File-Path': file_target_path,
                             'Content-Type': 'application/octet-stream'
                         }
@@ -356,6 +374,9 @@ class MainScreen(Screen):
                 except json.JSONDecodeError:
                     response_text = "Failed to decode container list from server."
             else:
+                #DEBUG
+                print(":::GOT TEXT:::")
+                print(response.text)
                 response_text = response.text
                 success = True
         except requests.exceptions.RequestException as e:
@@ -547,6 +568,20 @@ class ManageScreen(Screen):
         self.selected_containers = {}  # Store selected containers
         self.is_processing_actions = False  # Flag for action status
 
+        # Initialize file manager for file uploads
+        self.file_manager = MDFileManager(
+            exit_manager=self.exit_file_manager,
+            select_path=self.select_file_path,
+            ext=[]
+        )
+
+
+        for style, font_props in self.file_manager.theme_cls.font_styles.items():
+            print(f"Processing font style: {style}, props: {font_props}")
+            cjk_font_path = GLOBAL_FONT_FILE
+            if isinstance(font_props, list) and len(font_props) > 0 and cjk_font_path:
+                if  style[:4] == 'Body' or style == 'Subtitle1':
+                    font_props[0] = cjk_font_path  # Set font name only
     def _toggle_action_buttons_state(self, enable):
         # Enable or disable all action buttons and input field
         self.start_button.disabled = not enable
@@ -645,10 +680,59 @@ class ManageScreen(Screen):
         main_screen.send_request("request")
         self.feedback_label.text = "Container actions requested. List will refresh shortly."
 
-    def select_file_path(self, path):
-        if self.container_list.children == None or path == None:
+    def open_file_manager(self, instance) -> None:
+        try:
+            # Request Android permissions for external storage.
+            # This is crucial for accessing files on Android devices.
+            currentActivity = Activity.mActivity
+            request_permissions([
+                Permission.READ_EXTERNAL_STORAGE,
+                Permission.WRITE_EXTERNAL_STORAGE,
+                Permission.MANAGE_EXTERNAL_STORAGE,
+            ])
+            if not Environment.isExternalStorageManager():
+                intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                uri = Uri.fromParts("package", currentActivity.getPackageName(), None)
+                intent.setData(uri)
+                currentActivity.startActivity(intent)
+                self.display_message("Allow full disk access to allow all files")
+        except:
+            pass
+        # Get the main screen instance from the screen manager.
+        main_screen = self.manager.get_screen("main")
+
+        # Prevent opening the file manager if another operation (e.g., container creation)
+        # or processing action is currently in progress.
+        if main_screen.is_creating_container or self.is_processing_actions:
+            self.feedback_label.text = "Please wait for the current operation to finish."
             return
+
+        # Validate that exactly one container is selected for file upload.
+        # Use isinstance correctly without 'obj:' or 'class_or_tuple:'.
+        selected_items = [
+            item for item in self.container_list.children
+            if isinstance(item, ContainerListItem) and item.checkbox_active
+        ]
+        if len(selected_items) != 1:
+            self.feedback_label.text = "Please select exactly ONE container to upload a file to."
+            return
+
+        # Validate that a target path within the container has been entered.
+        # Use .strip() to account for whitespace-only input.
+        if not self.inc_path_input.text.strip():
+            self.feedback_label.text = "Please enter the target path in the container."
+            return
+
+        # If all validations pass, open the KivyMD file manager.
+        # Ensure 'path' is passed as a keyword argument.
+        import os # Ensure os module is imported if not already at the top.
+        self.file_manager.show(path=os.path.expanduser("/storage/emulated/0/Documents"))
+        # Set a flag indicating the file manager is open (useful for managing its state).
+        self.manager_open = True
+
+    def select_file_path(self, path):
         # Handle file selection for upload
+        self.exit_file_manager(None)
         selected_items = [item for item in self.container_list.children if isinstance(item, ContainerListItem) and item.checkbox_active]
         if not selected_items:
             self.feedback_label.text = "No container selected. Cannot upload file."
@@ -665,60 +749,19 @@ class ManageScreen(Screen):
             return
         self.feedback_label.text = f"Pushing item ..."
         main_screen = self.manager.get_screen("main")
-        for selected_item in selected_items:
-            if selected_item == "":
-                continue
-            for current_file in path:
-                if current_file == "":
-                    continue
-                main_screen.send_request("upload", selected_tag=selected_item.actualTag, file_path=current_file, file_target_path=container_target_path)
+        main_screen.send_request("upload", selected_tag=selected_items[0].actualTag, file_path=path, file_target_path=container_target_path)
         self.feedback_label.text = ""
 
+    def exit_file_manager(self, args):
+        # Close the file manager
+        self.file_manager.close()
 
-
-    def open_file_manager(self, instance) -> None:
-        # Request Android permissions for external storage.
-        # This is crucial for accessing files on Android devices.
-        try:
-            request_permissions([
-                Permission.READ_EXTERNAL_STORAGE,
-                Permission.WRITE_EXTERNAL_STORAGE,
-            ])
-        except Exception as e:
-            print("Failed to request permission. Is it desktop app? error: ", e)
-
-        # Get the main screen instance from the screen manager.
-        main_screen = self.manager.get_screen("main")
-
-        # Prevent opening the file manager if another operation (e.g., container creation)
-        # or processing action is currently in progress.
-        if main_screen.is_creating_container or self.is_processing_actions:
-            self.feedback_label.text = "Please wait for the current operation to finish."
-            return
-
-        # Validate that exactly one container is selected for file upload.
-        # Use isinstance correctly without 'obj:' or 'class_or_tuple:'.
-        selected_items = [
-            item for item in self.container_list.children
-            if isinstance(item, ContainerListItem) and item.checkbox_active
-        ]
-
-        # Validate that a target path within the container has been entered.
-        # Use .strip() to account for whitespace-only input.
-        if not self.inc_path_input.text.strip():
-            self.feedback_label.text = "Please enter the target path in the container."
-            return
-        from plyer import filechooser
-        filechooser.open_file(
-            on_selection = self.select_file_path,
-            filters=['*.*', '*', '.*'],
-            multiple=True)
 # Main application class
 class ContainerApp(MDApp):
     def build(self):
-        self.icon = os.path.join(basedir, 'icon.png')
         # Configure the app and initialize screens
-        # Font style for general body text (e.g., file/folder names)
+                # Font style for general body text (e.g., file/folder names)
+
         cjk_font_path = GLOBAL_FONT_FILE
         print(f"Checking font path: {cjk_font_path}")
         if not os.path.exists(cjk_font_path):
@@ -747,9 +790,17 @@ class ContainerApp(MDApp):
             request_permissions([
                 Permission.READ_EXTERNAL_STORAGE,
                 Permission.WRITE_EXTERNAL_STORAGE,
+                Permission.MANAGE_EXTERNAL_STORAGE,
             ])
-        except Exception as e:
-            print("Failed to request permission. Is it desktop app? error: ", e)
+
+            if not Environment.isExternalStorageManager():
+                intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                uri = Uri.fromParts("package", currentActivity.getPackageName(), None)
+                intent.setData(uri)
+                currentActivity.startActivity(intent)
+                self.display_message("Allow full disk access to allow all files")
+        except:
+            pass
 
 if __name__ == "__main__":
     # Set certificate path and run the app
@@ -758,6 +809,9 @@ if __name__ == "__main__":
             cert_path = os.path.join(basedir, 'certs', 'ca.crt')
         else:
             cert_path = os.path.join(basedir, 'certs', 'ca.crt')
-
+    elif platform.system() == 'Android':
+        cert_path = os.path.join(basedir, 'certs', 'ca.crt')
+    else:
+        cert_path = './certs/ca.crt'
     ContainerApp().run()
 

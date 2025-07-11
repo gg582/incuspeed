@@ -30,7 +30,7 @@ source.include_patterns = certs/*
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.2.5
+version = 0.2.7
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -38,7 +38,9 @@ version = 0.2.5
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,kivymd,pycryptodome,bcrypt,requests,cython,pyjnius,plyer,android,jnius
+requirements = python3,kivy,kivymd2,pycryptodome,bcrypt,requests,cython,plyer,pyjnius,jnius
+android.target_sdk = 33
+
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -55,7 +57,7 @@ requirements = python3,kivy,kivymd,pycryptodome,bcrypt,requests,cython,pyjnius,p
 
 icon.filename = icon.png
 orientation = portrait
-android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, android.permission.INTERNET
+android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, INTERNET, MANAGE_EXTERNAL_STORAGE, ACTION_MANAGE_ALL_FILES_PERMISSION
 
 # (list) List of service to declare
 #services = NAME:ENTRYPOINT_TO_PY,NAME2:ENTRYPOINT2_TO_PY
@@ -71,7 +73,7 @@ android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, android.per
 osx.python_version = 3
 
 # Kivy version to use
-osx.kivy_version = 1.9.1
+osx.kivy_version = 2.1.0
 
 #
 # Android specific

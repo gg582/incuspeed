@@ -139,6 +139,37 @@
         }
       }
     },
+    "/unregister": {
+      "post": {
+        "description": "Unregister retrieves a specific user to delete",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "summary": "Unregister a user",
+        "parameters": [
+          {
+            "description": "User information",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/linux_virt_unit.UserInfo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+          },
+          "404": {
+            "description": "No user found"
+          }
+        }
+      }
+    },
+
     "/upload": {
       "post": {
         "description": "Uploads a file to a container with the destination path specified in the \"X-File-Path\" header.\"",

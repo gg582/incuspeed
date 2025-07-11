@@ -25,8 +25,8 @@ This client allows users to securely communicate with the IncuSpeed server over 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/gg582/incuspeed
-cd app
+git clone https://github.com/gg582/incuspeed.git
+cd incuspeed/app
 ```
 
 ### 2. Install Dependencies
@@ -50,7 +50,16 @@ You can see kivy's buildozer docs.
 
 ## 🔧 Supported Server Functions
 
-This client communicates with documented endpoints(`/create`, `/delete`, `/request`, etc.);they are documented through Swagger:
+This client communicates with the following IncuSpeed server endpoints:
+
+| Method | Endpoint     | Description               |
+|--------|--------------|---------------------------|
+| POST   | `/start`     | Start a container         |
+| POST   | `/pause`     | Pause a running container |
+| POST   | `/resume`    | Resume a paused container |
+| POST   | `/restart`   | Restart a container       |
+
+Other endpoints (`/create`, `/delete`, `/request`, etc.) are available and documented through Swagger:
 
 📚 **Swagger Documentation**  
 Access it via your server:  
@@ -69,9 +78,10 @@ Access it via your server:
 ## 🗂 Directory Overview
 
 ```text
-app/
+lvirt-client/
 ├── certs/
-│   ├── ca.crt
+│   ├── client.crt
+│   └── client.key
 ├── main.py
 ├── requirements.txt
 └── README.md

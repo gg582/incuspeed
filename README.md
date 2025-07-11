@@ -110,12 +110,13 @@ curl -X POST https://<host>:<port>/start   -d 'my-container --cacert ca.crt'
 
 1. **Clone this repository**
    ```bash
-   git clone https://your-repo-url
-   cd your-repo-name
+   git clone https://github.com/gg582/incuspeed
+   cd incuspeed
    ```
 
 2. **Run installation commands**
    ```bash
+   git clone https://github.com/gg582/linux_virt_unit
    make
    ./initial_setup.sh --reconfigure-incus
    systemctl start --now incuspeed
@@ -158,8 +159,8 @@ This certification will be included when building mobile apps.
 
 ### 📷 Screenshots
 
-![ContList](./assets/containerlist.jpg)
-![MainScreen](./assets/mainscreen.jpg)
+![ContList](./assets/containerlist.png)
+![MainScreen](./assets/mainscreen.png)
 *warning: you can't use Push File for android mobile app. Related to jnius type conversion.*
 *Same screen will show up with PC, you can use it instead.*
 
