@@ -1,5 +1,6 @@
 kivy
 kivymd2
+kivymd
 pycryptodome
 bcrypt
 requests

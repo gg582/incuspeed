@@ -697,7 +697,7 @@ class ManageScreen(Screen):
                 currentActivity.startActivity(intent)
                 self.display_message("Allow full disk access to allow all files")
         except:
-            pass
+            print("This would be desktop version. no problem")
         # Get the main screen instance from the screen manager.
         main_screen = self.manager.get_screen("main")
 
@@ -726,7 +726,24 @@ class ManageScreen(Screen):
         # If all validations pass, open the KivyMD file manager.
         # Ensure 'path' is passed as a keyword argument.
         import os # Ensure os module is imported if not already at the top.
-        self.file_manager.show(path=os.path.expanduser("/storage/emulated/0/Documents"))
+        if platform.system() == 'Linux':
+            androiddir = "/storage/emulated/0/Documents"
+            if os.path.exists(androiddir):
+                self.file_manager.show(path=os.path.expanduser(androiddir))
+            else:
+                self.file_manager.show(path="/home")
+            print("trying to open desktop home...")
+        elif platform.system() == 'Windows':
+            self.file_manager.show(path="C:\\")
+        elif platform.system() == 'darwin':
+            self.file_manager.show(path=os.path.expanduser("~"))
+            print("trying to open desktop home...")
+        else:
+            bsdCheck = list(platform.system())
+            check = ''.join(bsdCheck[len(bsdCheck)-3:])
+            if check == 'BSD':
+                self.file_manager.show(path=os.path.expanduser("~"))
+
         # Set a flag indicating the file manager is open (useful for managing its state).
         self.manager_open = True
 

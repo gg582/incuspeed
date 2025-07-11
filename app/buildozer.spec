@@ -30,7 +30,7 @@ source.include_patterns = certs/*
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.2.7
+version = 0.2.5
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -38,7 +38,7 @@ version = 0.2.7
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,kivymd2,pycryptodome,bcrypt,requests,cython,plyer,pyjnius,jnius
+requirements = python3,kivy,kivymd2,pycryptodome,bcrypt,requests,cython,plyer,pyjnius,jnius,kivymd
 android.target_sdk = 33
 
 
