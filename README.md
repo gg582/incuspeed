@@ -148,7 +148,7 @@ This certification will be included when building mobile apps.
 3. **Install extra dependencies**
     libffi-dev is required for Cythonize
 4. **Build your app**
-    There are long integer bugs in pyjnius. Change long into int.
+    There are long integer bugs in pyjnius. Use cython version that kivy team has suggested
 
 
 
@@ -161,8 +161,6 @@ This certification will be included when building mobile apps.
 
 ![ContList](./assets/containerlist.png)
 ![MainScreen](./assets/mainscreen.png)
-*warning: you can't use Push File for android mobile app. Related to jnius type conversion.*
-*Same screen will show up with PC, you can use it instead.*
 
 ### ✅ Quick Steps
 
