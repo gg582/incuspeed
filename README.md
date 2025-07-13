@@ -25,6 +25,9 @@ This project aims for **dumb, but prominent container works**. With this Desktop
 Q. How about monitoring metrics and logger of server?
 A. Use Kibana, Java Resource Monitoring functions, Grafana, etc. Those are not suitable for **dumb application**.
 
+Q. How can I use spare port for web server?
+A. 30001, 30002 in container, are mapping into SSH port +1, and SSh port +2. Use each port and keep connecting.
+
 Q. Can I transfer big files into container?
 A. Recently updated. Check for v0.2.7.
 
