@@ -735,7 +735,7 @@ class ManageScreen(Screen):
             print("trying to open desktop home...")
         elif platform.system() == 'Windows':
             self.file_manager.show(path="C:\\")
-        elif platform.system() == 'darwin':
+        elif platform.system() == 'Darwin':
             self.file_manager.show(path=os.path.expanduser("~"))
             print("trying to open desktop home...")
         else:
