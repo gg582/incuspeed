@@ -31,6 +31,7 @@ from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.list import MDList
 from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.filemanager import MDFileManager  # For file selection
+d = {}
 
 # Permission handling for Android
 try:
@@ -309,11 +310,23 @@ class MainScreen(Screen):
             data_to_send = selected_tag
             headers = {}
         elif endpoint == "upload":
+#            self.upload_file_button.disabled = True
+#            self.delete_button.disabled = True
             # Prepare file upload data
             if not selected_tag or not file_path or not file_target_path:
                 print("Missing info for file upload.")
                 return
-            data_to_send = file_path + '\u0000' + file_target_path
+            global d
+            for file_single in file_path:
+                if d[file_target_path] != "no":
+                    print("file:" , file_single)
+                    d[file_target_path] = "no"
+                    data_to_send = file_single + '\u0000' + file_target_path
+                else:
+                    while d[file_target_path] == "no":
+                        print('busy waiting process')
+                threading.Thread(target=self._send_request_in_thread, args=(endpoint, headers, data_to_send, selected_tag)).start()
+            return
         else:
             # Prepare data for other requests (e.g., list containers)
             if not hasattr(self.manager, 'user_info'):
@@ -334,6 +347,7 @@ class MainScreen(Screen):
         response_text = ""
         success = False
         containers_data = None
+        file_path = "";file_target_path="";
         try:
             if endpoint in ["start", "stop", "restart", "pause", "delete", "resume", "upload"]:
                 if endpoint == "upload":
@@ -378,6 +392,8 @@ class MainScreen(Screen):
                 print(":::GOT TEXT:::")
                 print(response.text)
                 response_text = response.text
+                global d
+                del d[file_target_path]
                 success = True
         except requests.exceptions.RequestException as e:
             response_text = f"Network Error: {e}"
@@ -572,7 +588,8 @@ class ManageScreen(Screen):
         self.file_manager = MDFileManager(
             exit_manager=self.exit_file_manager,
             select_path=self.select_file_path,
-            ext=[]
+            ext=[],
+            selector="multi"
         )
 
 
