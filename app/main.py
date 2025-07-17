@@ -621,7 +621,8 @@ class ManageScreen(Screen):
                     return
                 path = "/storage/emulated/0/Documents"
             elif platform.system() == 'Windows':
-                path = "C:\\"
+                path = os.path.expanduser("~")
+                print("Windows client is untested. if there are some bugs from Windows, please make PR to GitHub")
             elif platform.system() == 'Darwin':
                 path = os.path.expanduser("~/Documents")
             else:
