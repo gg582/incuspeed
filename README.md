@@ -2,7 +2,7 @@
 # 🐧IncuSpeed : Linux Virtualization RestAPI Server and Front-End App
 
 > **A super-lightweight LXD/Incus container management GUI for Linux systems**  
-> Current Distro: **🟣 Ubuntu 24.04**
+> Current Host Distro: **🟣 Ubuntu 24.04**
 
 ## Overview
 
@@ -20,6 +20,25 @@ If someone needs to deploy huge web services, one has better solution: Podman-Co
 Also, there are many ready-made solutions, like AWS, GKE. For production use, one can use them.
 
 This project aims for **dumb, but prominent container works**. With this Desktop/Mobile app and server set, you can manage it simpler.
+
+Supports major distros including RHEL-forks(alma, rocky), Ubuntu(20.04, 22.04, 24.04), Debian(10, 11, 12), Slackware(14.2, 15.0, current), Archlinux.
+
+**You can add custom distro via incus publish, image name should be in a format, with a single hyphen(distro-version).**
+For example, ou have ubuntu 24.04 container that contains nginx v1.24.0 installation.
+Then, you should follow this:
+```bash
+incus snapshot create my-nginx-container nginx
+incus publish my-nginx-container/nginx --alias nginx-1.24.0
+```
+Then, you can use this image as nginx:1.24.0.
+#### Test for custom NGINX container
+
+```bash
+git submodule init
+git submoule update
+cd examples/nginx-examples
+```
+And see README.md text for information.
 
 #### Questions & Answers
 Q. How about monitoring metrics and logger of server?
