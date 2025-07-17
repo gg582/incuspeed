@@ -39,7 +39,7 @@ version = 0.2.5
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
 requirements = python3,kivy,kivymd2,pycryptodome,bcrypt,requests,cython,plyer,pyjnius,jnius,kivymd
-android.target_sdk = 33
+android.target_sdk = 34
 
 
 # (str) Custom source folders for requirements

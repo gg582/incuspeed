@@ -606,27 +606,30 @@ class ManageScreen(Screen):
             self.feedback_label.text = "Please enter the target path in the container."
             return
         try:
-            if platform.system() == 'Android':
-                request_permissions([
-                    Permission.READ_EXTERNAL_STORAGE,
-                    Permission.WRITE_EXTERNAL_STORAGE,
-                    Permission.MANAGE_EXTERNAL_STORAGE,
-                ])
-                if not Environment.isExternalStorageManager():
-                    intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    uri = Uri.fromParts("package", Activity.mActivity.getPackageName(), None)
-                    intent.setData(uri)
-                    Activity.mActivity.startActivity(intent)
-                    self.feedback_label.text = "Please allow full disk access."
-                    return
-                path = "/storage/emulated/0/Documents"
+            if platform.system() == 'Linux':
+                if os.path.isdir("/storage/emulated/0/"):
+                    request_permissions([
+                        Permission.READ_EXTERNAL_STORAGE,
+                        Permission.WRITE_EXTERNAL_STORAGE,
+                    ])
+                    if not Environment.isExternalStorageManager():
+                        intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        uri = Uri.fromParts("package", Activity.mActivity.getPackageName(), None)
+                        intent.setData(uri)
+                        Activity.mActivity.startActivity(intent)
+                        self.feedback_label.text = "Please allow full disk access."
+                        return
+                    path = "/storage/emulated/0/"
+                else:
+                    path = os.path.expanduser("~")
             elif platform.system() == 'Windows':
                 path = os.path.expanduser("~")
                 print("Windows client is untested. if there are some bugs from Windows, please make PR to GitHub")
             elif platform.system() == 'Darwin':
-                path = os.path.expanduser("~/Documents")
+                path = os.path.expanduser("~")
             else:
                 path = os.path.expanduser("~")
+                print("This client is untested. please test and make PR to GitHub")
             if not os.path.exists(path):
                 path = os.path.expanduser("~")
             Logger.info(f"Opening file manager at path: {path}")
@@ -668,6 +671,8 @@ class ManageScreen(Screen):
         self._toggle_action_buttons_state(False)
         main_screen = self.manager.get_screen("main")
         for path in paths:
+            path = path.encode('utf-8')
+            container_target_path = container_target_path.encode('utf-8')
             main_screen.send_request("upload", selected_tag=selected_items[0].actualTag, file_path=path, file_target_path=container_target_path)
         self.exit_file_manager(None)
 
@@ -704,7 +709,6 @@ class ContainerApp(MDApp):
                 request_permissions([
                     Permission.READ_EXTERNAL_STORAGE,
                     Permission.WRITE_EXTERNAL_STORAGE,
-                    Permission.MANAGE_EXTERNAL_STORAGE,
                 ])
                 if not Environment.isExternalStorageManager():
                     intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
