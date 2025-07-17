@@ -41,29 +41,30 @@ cd examples/nginx-examples
 And see README.md text for information.
 
 #### Questions & Answers
-Q. How about monitoring metrics and logger of server?
-A. Use Kibana, Java Resource Monitoring functions, Grafana, etc. Those are not suitable for **dumb application**.
 
-Q. How can I use spare port for web server?
-A. 30001, 30002 in container, are mapping into SSH port +1, and SSh port +2. Use each port and keep connecting.
+- Q. How about monitoring metrics and logger of server?
+- A. Use Kibana, Java Resource Monitoring functions, Grafana, etc. Those are not suitable for **dumb application**.
 
-Q. Can I transfer big files into container?
-A. Recently updated. Check for v0.2.7.
+- Q. How can I use spare port for web server?
+- A. 30001, 30002 in container, are mapping into SSH port +1, and SSh port +2. Use each port and keep connecting.
 
-Q. How can I specify filename?
-A. Add file extension at your destination.
+- Q. Can I transfer big files into container?
+- A. Recently updated. Check for v0.2.7.
 
-Q. What languages does it support?
-A. I am from South Korea. So, CJK + English, and some well-known European alphabets are supported. Check the font that I provided.
+- Q. How can I specify filename?
+- A. Add file extension at your destination.
 
-Q. Why did you select Go, and Python3?
-A. Go is easy to learn. Also, Incus natively support Go(since it is implemented in Go). Python3 + KivyMD is great choice for fast prototyping.
+- Q. What languages does it support?
+- A. I am from South Korea. So, CJK + English, and some well-known European alphabets are supported. Check the font that I provided.
 
-Q. Why all POST methods? It is basically CRUD.
-A. To write consistent and simple code, every tasks are managed as POST; Simple information is handled by plain text, detailed one is managed by JSON.  
+- Q. Why did you select Go, and Python3?
+- A. Go is easy to learn. Also, Incus natively support Go(since it is implemented in Go). Python3 + KivyMD is great choice for fast prototyping.
 
-Q. How can I use it on my server?
-A. You don't need to edit REST Server. Just edit your client app, make your openssl configuration, and certificates too.
+- Q. Why all POST methods? It is basically CRUD.
+- A. To write consistent and simple code, every tasks are managed as POST; Simple information is handled by plain text, detailed one is managed by JSON.  
+
+- Q. How can I use it on my server?
+- A. You don't need to edit REST Server. Just edit your client app, make your openssl configuration, and certificates too.
 
 ### REST API Structure
 
