@@ -324,6 +324,9 @@ linuxVirtualization/
 ```bash
 grep yoonjin2 $(find . -type f)
 ```
+Additional images are supported.
+See `utils/additional_image/README.md` for more.
+[Additional README](./utils/additional_image/README.md)
 
 ---
 
