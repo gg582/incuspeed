@@ -65,7 +65,7 @@ if getattr(sys, 'frozen', False):
 else:
     basedir = os.path.dirname(os.path.abspath(__file__))
 
-SERVER_URL = "https://hobbies.yoonjin2.kr:32000"
+SERVER_URL = ""
 GLOBAL_FONT_FILE = os.path.join(basedir, 'RobotoCJKSC-Regular.ttf')
 
 # Set certificate path
@@ -115,10 +115,12 @@ class MainScreen(Screen):
         central_layout.bind(minimum_height=central_layout.setter('height'))
         title_label = MDLabel(text="Linux Container Manager", halign='center', theme_text_color="Primary")
         central_layout.add_widget(title_label)
+        self.url_input = MDTextField(hint_text="URL", size_hint_x=None, width=central_layout.width)
         self.username_input = MDTextField(hint_text="Username", size_hint_x=None, width=central_layout.width)
         self.password_input = MDTextField(hint_text="Password", password=True, size_hint_x=None, width=central_layout.width)
         self.container_tag = MDTextField(hint_text="Container Label (e.g., my-web-app)", size_hint_x=None, width=central_layout.width, max_text_length=10)
         self.distro = MDTextField(hint_text="Distro:Version (e.g., ubuntu:22.04)", size_hint_x=None, width=central_layout.width)
+        central_layout.add_widget(self.url_input)
         central_layout.add_widget(self.username_input)
         central_layout.add_widget(self.password_input)
         central_layout.add_widget(self.distro)
@@ -305,6 +307,8 @@ class MainScreen(Screen):
         success = False
         containers_data = None
         try:
+
+            SERVER_URL = str(url_input.text) # explicit type
             if endpoint == "upload":
                 with open(data_to_send, 'rb') as f:
                     file_content = f.read()
