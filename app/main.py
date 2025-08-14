@@ -308,7 +308,8 @@ class MainScreen(Screen):
         containers_data = None
         try:
 
-            SERVER_URL = str(url_input.text) # explicit type
+            main_screen = self.manager.get_screen("main")
+            SERVER_URL = str(main_screen.url_input.text) # explicit type
             if endpoint == "upload":
                 with open(data_to_send, 'rb') as f:
                     file_content = f.read()
