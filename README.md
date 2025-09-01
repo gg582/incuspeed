@@ -4,6 +4,10 @@
 > **A super-lightweight LXD/Incus container management GUI for Linux systems**  
 > Current Host Distro: **🟣 Ubuntu 24.04**
 
+[![DeepSource](https://app.deepsource.com/gh/gg582/linux_virt_unit.svg/?label=code+coverage&show_trend=true&token=jcUvRmH_C1MMA6FwfNXWaLw2)](https://app.deepsource.com/gh/gg582/linux_virt_unit/)
+[![DeepSource](https://app.deepsource.com/gh/gg582/linux_virt_unit.svg/?label=active+issues&show_trend=true&token=jcUvRmH_C1MMA6FwfNXWaLw2)](https://app.deepsource.com/gh/gg582/linux_virt_unit/)
+[![DeepSource](https://app.deepsource.com/gh/gg582/laputil.svg/?label=resolved+issues&show_trend=true&token=TI2tAytzI2P2dcKbncHMTzfG)](https://app.deepsource.com/gh/gg582/laputil/)
+
 ## Overview
 
 ### Purpose of the Project
