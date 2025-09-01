@@ -6,7 +6,8 @@
 
 [![DeepSource](https://app.deepsource.com/gh/gg582/incuspeed.svg/?label=code+coverage&show_trend=true&token=eghapy87jjnelBbEvOL0DkW4)](https://app.deepsource.com/gh/gg582/incuspeed/)
 [![DeepSource](https://app.deepsource.com/gh/gg582/incuspeed.svg/?label=active+issues&show_trend=true&token=eghapy87jjnelBbEvOL0DkW4)](https://app.deepsource.com/gh/gg582/incuspeed/)
-[![DeepSource](https://app.deepsource.com/gh/gg582/incuspeed.svg/?label=code+coverage&show_trend=true&token=eghapy87jjnelBbEvOL0DkW4)](https://app.deepsource.com/gh/gg582/incuspeed/)
+[![DeepSource](https://app.deepsource.com/gh/gg582/incuspeed.svg/?label=active+issues&show_trend=true&token=eghapy87jjnelBbEvOL0DkW4)](https://app.deepsource.com/gh/gg582/incuspeed/)
+
 ## Overview
 
 ### Purpose of the Project
